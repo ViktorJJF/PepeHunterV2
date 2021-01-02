@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const { Schema } = mongoose;
 
 const validRoles = {
-  values: ['ADMIN', 'USER'],
+  values: ['SUPERADMIN', 'ADMIN', 'USER'],
   message: '{VALUE} no es un rol válido',
 };
 
@@ -86,7 +86,7 @@ const genSalt = (user, SALT_FACTOR, next) => {
   });
 };
 
-usersSchema.pre('save', (next) => {
+usersSchema.pre('save', function (next) {
   const that = this;
   const SALT_FACTOR = 5;
   if (!that.isModified('password')) {
@@ -95,7 +95,7 @@ usersSchema.pre('save', (next) => {
   return genSalt(that, SALT_FACTOR, next);
 });
 
-usersSchema.methods.comparePassword = (passwordAttempt, cb) => {
+usersSchema.methods.comparePassword = function (passwordAttempt, cb) {
   bcrypt.compare(passwordAttempt, this.password, (err, isMatch) => {
     if (err) {
       return cb(err);

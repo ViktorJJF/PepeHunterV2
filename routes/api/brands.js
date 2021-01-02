@@ -23,7 +23,7 @@ router.get('/all', controller.listAll);
 router.get(
   '/',
   requireAuth,
-  AuthController.roleAuthorization(['ADMIN']),
+  AuthController.roleAuthorization(['SUPERADMIN', 'ADMIN']),
   trimRequest.all,
   controller.list,
 );
@@ -34,7 +34,7 @@ router.get(
 router.post(
   '/',
   requireAuth,
-  AuthController.roleAuthorization(['ADMIN']),
+  AuthController.roleAuthorization(['SUPERADMIN', 'ADMIN']),
   trimRequest.all,
   validate.create,
   controller.create,
@@ -46,7 +46,7 @@ router.post(
 router.get(
   '/:id',
   requireAuth,
-  AuthController.roleAuthorization(['ADMIN']),
+  AuthController.roleAuthorization(['SUPERADMIN', 'ADMIN']),
   trimRequest.all,
   validate.listOne,
   controller.listOne,
@@ -58,7 +58,7 @@ router.get(
 router.put(
   '/:id',
   requireAuth,
-  AuthController.roleAuthorization(['ADMIN']),
+  AuthController.roleAuthorization(['SUPERADMIN', 'ADMIN']),
   trimRequest.all,
   validate.update,
   controller.update,
@@ -70,7 +70,7 @@ router.put(
 router.delete(
   '/:id',
   requireAuth,
-  AuthController.roleAuthorization(['ADMIN']),
+  AuthController.roleAuthorization(['SUPERADMIN', 'ADMIN']),
   trimRequest.all,
   validate.deletes,
   controller.deletes,

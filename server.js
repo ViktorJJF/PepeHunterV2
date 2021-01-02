@@ -46,7 +46,7 @@ app.use('/api', require('./routes/api/index.js'));
 // if (process.env.NODE_ENV === 'production') {
 // static folder
 // Handle SPA
-app.get(/.*/, (res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`);
 });
 // }

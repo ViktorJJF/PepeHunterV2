@@ -57,7 +57,7 @@ router.post(
 router.get(
   '/token',
   requireAuth,
-  AuthController.roleAuthorization(['user', 'admin']),
+  AuthController.roleAuthorization(['USER', 'ADMIN', 'SUPERADMIN']),
   trimRequest.all,
   controller.getRefreshToken,
 );

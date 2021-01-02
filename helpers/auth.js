@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { buildErrObject } = require('../helpers/utils');
 
 const secret = process.env.JWT_SECRET;
 const algorithm = 'aes-192-cbc';
@@ -18,7 +19,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       user.comparePassword(password, (err, isMatch) => {
         if (err) {
-          reject(this.buildErrObject(422, err.message));
+          reject(buildErrObject(422, err.message));
         }
         if (!isMatch) {
           resolve(false);

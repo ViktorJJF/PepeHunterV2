@@ -8,31 +8,32 @@ const db = require('../helpers/db');
 
 const UNIQUEFIELDS = ['name'];
 
-const itemExistsExcludingItself = async (id, body) => new Promise((resolve, reject) => {
-  const query = UNIQUEFIELDS.length > 0 ? {} : { noFields: true };
-  for (const uniquefield of UNIQUEFIELDS) {
-    query[uniquefield] = body[uniquefield];
-  }
-  query._id = {
-    $ne: id,
-  };
-  model.findOne(query, (err, item) => {
-    utils.itemAlreadyExists(err, item, reject, 'Este registro ya existe');
-    resolve(false);
+const itemExistsExcludingItself = async (id, body) =>
+  new Promise((resolve, reject) => {
+    const query = UNIQUEFIELDS.length > 0 ? {} : { noFields: true };
+    for (const uniquefield of UNIQUEFIELDS) {
+      query[uniquefield] = body[uniquefield];
+    }
+    query._id = {
+      $ne: id,
+    };
+    model.findOne(query, (err, item) => {
+      utils.itemAlreadyExists(err, item, reject, 'Este registro ya existe');
+      resolve(false);
+    });
   });
-});
 
-const itemExists = async (body) => new Promise((resolve, reject) => {
-  const query = UNIQUEFIELDS.length > 0 ? {} : { noFields: true };
-  for (const uniquefield of UNIQUEFIELDS) {
-    query[uniquefield] = body[uniquefield];
-  }
-  model.findOne(query, (err, item) => {
-    console.log('el item es: ', item);
-    utils.itemAlreadyExists(err, item, reject, 'Este registro ya existe');
-    resolve(false);
+const itemExists = async (body) =>
+  new Promise((resolve, reject) => {
+    const query = UNIQUEFIELDS.length > 0 ? {} : { noFields: true };
+    for (const uniquefield of UNIQUEFIELDS) {
+      query[uniquefield] = body[uniquefield];
+    }
+    model.findOne(query, (err, item) => {
+      utils.itemAlreadyExists(err, item, reject, 'Este registro ya existe');
+      resolve(false);
+    });
   });
-});
 
 /**
  * Gets all items from database
@@ -49,7 +50,7 @@ const listAll = async (req, res) => {
 const list = async (req, res) => {
   try {
     const { query } = req;
-    // const query = await db.checkQueryString(req.query);
+    const query = await db.checkQueryString(req.query);
     res.status(200).json(await db.getItems(req, model, query));
   } catch (error) {
     utils.handleError(res, error);

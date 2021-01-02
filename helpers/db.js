@@ -61,6 +61,21 @@ module.exports = {
   renameKey,
   async checkQueryString(query) {
     return new Promise((resolve, reject) => {
+      //se obtiene campos fuera del filtro y campos
+      let queries = {};
+      for (const key in query) {
+        if (query.hasOwnProperty.call(query, key)) {
+          const element = query[key];
+          if (
+            key !== 'filter' &&
+            key !== 'fields' &&
+            key !== 'page' &&
+            key !== 'filter'
+          ) {
+            queries[key] = element;
+          }
+        }
+      }
       try {
         if (
           typeof query.filter !== 'undefined' &&
@@ -83,9 +98,9 @@ module.exports = {
           });
           // Puts array result in data
           data.$or = array;
-          resolve(data);
+          resolve({ ...data, ...queries });
         } else {
-          resolve({});
+          resolve(queries);
         }
       } catch (err) {
         console.log(err.message);
@@ -131,7 +146,6 @@ module.exports = {
         if (query.hasOwnProperty(key)) delete query[key];
       }
     }
-    // console.log("se paginara con esto: ", query, options);
     return new Promise((resolve, reject) => {
       model.paginate(query, options, (err, items) => {
         if (err) {
@@ -195,7 +209,7 @@ module.exports = {
       const item = new model(body);
       item.save((err, payload) => {
         if (err) {
-          console.log('salio este error prro:', err);
+          console.log('salio este error:', err);
           reject(buildErrObject(422, err.message));
         }
         resolve({ ok: true, payload });

@@ -49,7 +49,6 @@ const listAll = async (req, res) => {
 
 const list = async (req, res) => {
   try {
-    const { query } = req;
     const query = await db.checkQueryString(req.query);
     res.status(200).json(await db.getItems(req, model, query));
   } catch (error) {

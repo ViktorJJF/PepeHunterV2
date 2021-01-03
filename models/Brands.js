@@ -10,13 +10,13 @@ const brandSchema = new Schema(
       required: [true, 'El nombre de la marca es requerido'],
     },
     description: String,
-    status: {
-      type: Boolean,
-      default: true,
-    },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'Users',
+    },
+    status: {
+      type: Boolean,
+      default: true,
     },
   },
   {

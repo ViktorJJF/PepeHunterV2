@@ -5,14 +5,32 @@ const json = [];
 
 // Data
 // for (let i = 0; i < 2; i++) {
-json.push({
-  role: 'ADMIN',
-  status: true,
-  first_name: 'Victor Juan',
-  last_name: 'Jimenez Flores',
-  password: '$2b$05$ESBSlw8CwQMv.gcns.dDUuuV7TLsoLyZkoKg6R5VmwAPP7kF3ryH.',
-  email: 'vj@gmail.com',
-});
+json.push(
+  {
+    role: 'SUPERADMIN',
+    status: true,
+    first_name: 'Victor Juan',
+    last_name: 'Jimenez Flores',
+    password: '$2b$05$ESBSlw8CwQMv.gcns.dDUuuV7TLsoLyZkoKg6R5VmwAPP7kF3ryH.',
+    email: 'vj@gmail.com',
+  },
+  {
+    role: 'ADMIN',
+    status: true,
+    first_name: 'Victor Juan',
+    last_name: 'Jimenez Flores',
+    password: '$2b$05$ESBSlw8CwQMv.gcns.dDUuuV7TLsoLyZkoKg6R5VmwAPP7kF3ryH.',
+    email: 'vj1@gmail.com',
+  },
+  {
+    role: 'ADMIN',
+    status: true,
+    first_name: 'Victor Juan',
+    last_name: 'Jimenez Flores',
+    password: '$2b$05$ESBSlw8CwQMv.gcns.dDUuuV7TLsoLyZkoKg6R5VmwAPP7kF3ryH.',
+    email: 'vj2@gmail.com',
+  },
+);
 // }
 // END DATA
 

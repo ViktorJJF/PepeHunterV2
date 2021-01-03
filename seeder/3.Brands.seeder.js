@@ -8,7 +8,7 @@ module.exports = new Promise(async (resolve) => {
   const User = require('../models/Users');
   const users = await User.find();
   // GET DATA
-  for (let i = 0; i < 21; i++) {
+  for (let i = 0; i < 4200; i++) {
     json.push({
       name: faker.company.companyName(),
       createdAt: faker.date.past(),

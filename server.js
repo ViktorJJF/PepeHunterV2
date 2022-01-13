@@ -1,4 +1,6 @@
-require('dotenv-safe').config();
+if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+  require('dotenv-safe').config();
+}
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');

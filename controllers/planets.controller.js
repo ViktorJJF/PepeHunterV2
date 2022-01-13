@@ -1,4 +1,4 @@
-const model = require('../models/Brands');
+const model = require('../models/Planets');
 const utils = require('../helpers/utils');
 const db = require('../helpers/db');
 

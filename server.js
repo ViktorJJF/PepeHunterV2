@@ -40,7 +40,7 @@ app.use(express.static(`${__dirname}/public`));
 app.set('views', path.join(__dirname, 'views'));
 // app.engine('html', require('ejs').renderFile)
 app.set('view engine', 'html');
-app.use('/api', require('./routes/api/index.js'));
+app.use('/api', require('./routes/api/index'));
 
 // Handle Production
 // if (process.env.NODE_ENV === 'production') {
@@ -55,3 +55,5 @@ app.listen(app.get('port'));
 
 // Init MongoDB
 initMongo();
+// empieza pepehunter
+require('./startPepeHunter');

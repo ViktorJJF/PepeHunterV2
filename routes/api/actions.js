@@ -43,4 +43,43 @@ router.post('/scan-universe', async (req, res) => {
     res.status(400).json({ ok: false, msg: 'Algo salio mal' });
   }
 });
+
+router.post('/scan-player', async (req, res) => {
+  try {
+    let { nickname } = req.body;
+    let { bot } = global;
+    // buscando sus coordenadas
+    let regex = new RegExp(nickname, 'i');
+    let planets = await Planets.find({ playerName: { $regex: regex } });
+    let activities = [];
+    let promises = planets.map((planet) =>
+      bot.checkPlanetActivity(planet.coords),
+    );
+    let responses = await Promise.all(promises);
+    for (let i = 0; i < planets.length; i++) {
+      for (const response of responses[i]) {
+        activities.push({
+          ...response,
+          name: planets[i].name,
+        });
+      }
+    }
+    res.status(200).json({
+      ok: true,
+      msg: `Escaneando a ${nickname}`,
+      payload: {
+        activities,
+        player: {
+          rank: planets[0].rank,
+          alliance: planets[0].allianceTag,
+          playerName: planets[0].playerName,
+        },
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ ok: false, msg: 'Algo salio mal' });
+  }
+});
+
 module.exports = router;

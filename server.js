@@ -58,4 +58,4 @@ app.listen(app.get('port'));
 // Init MongoDB
 initMongo();
 // empieza pepehunter
-require('./startPepeHunter');
+// require('./startPepeHunter');

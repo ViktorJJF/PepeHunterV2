@@ -258,33 +258,53 @@ module.exports = class Bot {
     // await this.closeAds();
   }
 
-  async checkPlanetActivity() {}
+  /**
+   *
+   * @description Escanea planeta y luna (si lo tiene)
+   */
+  async checkPlanetActivity(coords) {
+    let [galaxy, system, position] = coords.split(':');
+    let activities = [];
+    // el formato
+    // {
+    //   date: new Date(),
+    //   lastActivity: null,
+    //   type: moon | planet
+    // }
+    const response = await this.getSolarSystemInformation(galaxy, system);
+    if (response.status === 200 && !response.data) {
+      console.log('LOGUEATE DE NUEVO');
+    } else {
+      let { data } = response;
+      let { galaxyContent } = data.system;
+      for (const content of galaxyContent) {
+        if (content.position === parseInt(position)) {
+          for (const planet of content.planets) {
+            let { planetType } = planet;
+            if (planetType === 1 || planetType === 3) {
+              activities.push({
+                date: new Date(),
+                lastActivity:
+                  planet.activity.showActivity === 15
+                    ? 'on'
+                    : planet.activity.showActivity === false
+                    ? 'off'
+                    : String(planet.activity.idleTime),
+                type: planetType === 1 ? 'planet' : 'moon',
+                coords,
+              });
+            }
+          }
+        }
+      }
+    }
+    return activities;
+  }
 
   async solarSystemScraping(galaxy, system) {
     let solarSystemPlanets = [];
 
-    const response = await axios({
-      method: 'post',
-      url: `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&action=fetchGalaxyContent&ajax=1&asJson=1`,
-      headers: {
-        accept: '*/*',
-        'accept-language': 'en,en-US;q=0.9,es-ES;q=0.8,es;q=0.7',
-        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'sec-ch-ua':
-          '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-origin',
-        'x-requested-with': 'XMLHttpRequest',
-        Referer:
-          'https://s208-es.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        cookie: this.getFormattedCookies(),
-      },
-      data: `galaxy=${galaxy}&system=${system}`,
-    });
+    const response = await this.getSolarSystemInformation(galaxy, system);
     if (response.status === 200 && !response.data) {
       console.log('LOGUEATE DE NUEVO');
     } else {
@@ -406,5 +426,30 @@ module.exports = class Bot {
           }`,
       )
       .join(' ');
+  }
+
+  async getSolarSystemInformation(galaxy, system) {
+    return await axios({
+      method: 'post',
+      url: `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&action=fetchGalaxyContent&ajax=1&asJson=1`,
+      headers: {
+        accept: '*/*',
+        'accept-language': 'en,en-US;q=0.9,es-ES;q=0.8,es;q=0.7',
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'sec-ch-ua':
+          '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        'x-requested-with': 'XMLHttpRequest',
+        Referer:
+          'https://s208-es.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        cookie: this.getFormattedCookies(),
+      },
+      data: `galaxy=${galaxy}&system=${system}`,
+    });
   }
 };

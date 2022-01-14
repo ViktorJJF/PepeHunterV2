@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { buildErrObject } = require('../helpers/utils');
+const { buildErrObject } = require('./utils');
 
 const secret = process.env.JWT_SECRET;
 const algorithm = 'aes-192-cbc';

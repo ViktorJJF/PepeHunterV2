@@ -1,9 +1,9 @@
 module.exports = {
-  SERVER: 's208',
+  SERVER: 's183',
   LANGUAGE: 'es',
-  UNIVERSE: 'Pasiphae',
+  UNIVERSE: 'Earth',
   PEPEBOTDOMAIN: 'http://localhost:7000',
   NUMBER_GALAXIES: 9,
-  GF_TOKEN: '5b721e05-9296-4d03-96c8-01e1cd5c310f', // obtenido de cookies
+  GF_TOKEN: '16b8bf5c-35b0-43c5-a708-9c96a3a3e26c', // obtenido de cookies
   PLAYER_ID: '', // el id de jugador del bot hunter
 };

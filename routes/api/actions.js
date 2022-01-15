@@ -26,26 +26,26 @@ router.post('/scan-universe', async (req, res) => {
           console.log('🚀 Aqui *** -> solarSystemPlanets', solarSystemPlanets);
           if (solarSystemPlanets.length > 0) {
             Planets.insertMany(solarSystemPlanets);
-            for (const planet of solarSystemPlanets) {
-              // crear jugadores
-              if (planet.playerId && !planet.isAdmin) {
-                console.log('creando a: ', planet.playerName);
-                new Players({
-                  playerId: planet.playerId,
-                  allianceId: planet.allianceId,
-                  allianceName: planet.allianceName,
-                  allianceTag: planet.allianceTag,
-                  alliancememberCount: planet.alliancememberCount,
-                  highscorePositionAlliance: planet.highscorePositionAlliance,
-                  name: planet.name,
-                  rank: planet.rank,
-                  isBanned: planet.isBanned,
-                  state: planet.state,
-                  rankTitle: planet.rankTitle,
-                  server: planet.server,
-                }).save();
-              }
-            }
+            // for (const planet of solarSystemPlanets) {
+            //   // crear jugadores
+            //   if (planet.playerId && !planet.isAdmin) {
+            //     console.log('creando a: ', planet.playerName);
+            //     new Players({
+            //       playerId: planet.playerId,
+            //       allianceId: planet.allianceId,
+            //       allianceName: planet.allianceName,
+            //       allianceTag: planet.allianceTag,
+            //       alliancememberCount: planet.alliancememberCount,
+            //       highscorePositionAlliance: planet.highscorePositionAlliance,
+            //       name: planet.name,
+            //       rank: planet.rank,
+            //       isBanned: planet.isBanned,
+            //       state: planet.state,
+            //       rankTitle: planet.rankTitle,
+            //       server: planet.server,
+            //     }).save();
+            //   }
+            // }
           } else {
             throw new Error('Cookie vencido');
           }

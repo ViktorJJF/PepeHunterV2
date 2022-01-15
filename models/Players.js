@@ -4,7 +4,7 @@ let { Schema } = mongoose;
 
 let schema = new Schema(
   {
-    playerId: Number,
+    playerId: { type: Number, unique: true, required: true },
     allianceId: Number,
     allianceName: String,
     allianceTag: String,
@@ -17,8 +17,12 @@ let schema = new Schema(
     rankTitle: String,
     server: String,
     militaryPoints: Number,
+    numberOfShips: Number,
+    rankMilitary: Number,
   },
   { versionKey: false, timestamps: true },
 );
+
+mongoose.model('Players', schema).syncIndexes();
 
 module.exports = mongoose.model('Players', schema);

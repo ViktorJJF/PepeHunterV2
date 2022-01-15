@@ -45,6 +45,7 @@
     "no-console": ["off"],
     "global-require": ["off"],
     "no-restricted-syntax": ["off"],
+    "radix": ["off"],
     "import/no-dynamic-require": ["off"],
     "no-await-in-loop": ["off"],
     "comma-dangle": [2, "always-multiline"],

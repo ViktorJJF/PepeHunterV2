@@ -1,0 +1,161 @@
+* {
+  padding: 0px;
+  margin: 0px;
+}
+
+footer {
+  background-color: #212529 !important;
+  color: aliceblue;
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+  text-align: center;
+  padding: 10px;
+}
+
+.ogameActivity {
+  font-weight: 500;
+}
+
+.onState {
+  color: #ac2222 !important;
+}
+
+.minuteState {
+  color: #f39c11 !important;
+}
+
+.offState {
+  color: #45a21a !important;
+}
+
+.moon {
+  background-color: #e9ecef !important;
+}
+
+.normal {
+  width: 20px;
+  height: 20px;
+  background-color: #e4e8f1 !important;
+  /* display: inline-block; */
+}
+
+.normal::after {
+  content: 'w';
+}
+
+.yellowPlayer {
+  width: 20px;
+  height: 20px;
+  background-color: yellow !important;
+  /* display: inline-block; */
+}
+
+.green {
+  width: 20px;
+  height: 20px;
+  background-color: green !important;
+}
+
+.red {
+  width: 20px;
+  height: 20px;
+  background-color: red !important;
+}
+
+.vacation {
+  width: 20px;
+  height: 20px;
+  background-color: aqua !important;
+}
+
+.inactive {
+  width: 20px;
+  height: 20px;
+  background-color: #8a8f93 !important;
+}
+
+.inactive::after {
+  content: '(i)';
+  text-align: center;
+}
+
+.admin {
+  width: 20px;
+  height: 20px;
+  background-color: #ff8000 !important;
+}
+
+th {
+  width: 6.25%;
+}
+
+.honorRank {
+  background: transparent
+    url('//gf1.geo.gfsrv.net/cdn31/0d31df283f135198103ab7a2cc11ca.png')
+    no-repeat center;
+  height: 15px;
+  margin: 0 3px 0 0;
+  width: 15px;
+  display: inline-block;
+}
+
+.rank_starlord1 {
+  background-position: -45px;
+}
+.rank_starlord2 {
+  background-position: -60px;
+}
+.rank_starlord3 {
+  background-position: -75px;
+}
+
+.rank_bandit1 {
+  background-position: 0px;
+}
+.rank_bandit2 {
+  background-position: -15px;
+}
+.rank_bandit3 {
+  background-position: -30px;
+}
+
+.moon_a {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: url('//gf3.geo.gfsrv.net/cdn87/c9643df71b262232a4d66e591f7543.gif')
+    no-repeat center;
+  background-size: 90%;
+  -webkit-filter: brightness(90%);
+  filter: brightness(90%);
+}
+
+.custom-margin {
+  padding-bottom: 70px;
+  padding-top: 30px;
+}
+
+.bg-ogame {
+  background: url('/images/ogame-bg.jpg');
+  height: 100vh;
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.background-overlay {
+  height: 100%;
+  background: rgba(48, 51, 107, 0.3);
+}
+
+.full-height {
+  height: 100vh;
+}
+
+/* td {
+  width: 100px;
+  margin: 0px;
+  padding: 0px;
+} */

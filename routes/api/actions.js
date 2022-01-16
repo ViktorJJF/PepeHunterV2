@@ -23,7 +23,6 @@ router.post('/scan-universe', async (req, res) => {
             galaxy,
             solarSystem,
           );
-          console.log('🚀 Aqui *** -> solarSystemPlanets', solarSystemPlanets);
           if (solarSystemPlanets.length > 0) {
             Planets.insertMany(solarSystemPlanets);
             // for (const planet of solarSystemPlanets) {

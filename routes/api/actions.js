@@ -17,7 +17,7 @@ router.post('/scan-universe', async (req, res) => {
       });
     }
     for (let galaxy = 1; galaxy <= config.NUMBER_GALAXIES; galaxy++) {
-      for (let solarSystem = 1; solarSystem < 499; solarSystem++) {
+      for (let solarSystem = 1; solarSystem <= 499; solarSystem++) {
         try {
           let solarSystemPlanets = await bot.solarSystemScraping(
             galaxy,
@@ -125,15 +125,7 @@ router.post('/sync-military-information', async (req, res) => {
     }
     res.status(200).json({
       ok: true,
-      msg: `Escaneando a ${nickname}`,
-      payload: {
-        activities,
-        player: {
-          rank: planets[0].rank,
-          alliance: planets[0].allianceTag,
-          playerName: planets[0].playerName,
-        },
-      },
+      msg: `Terminado`,
     });
   } catch (error) {
     console.log(error);

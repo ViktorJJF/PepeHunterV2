@@ -459,7 +459,7 @@ module.exports = class Bot {
   async getMilitaryInformation(page = 1) {
     let players = [];
 
-    let config = {
+    const response = await axios({
       method: 'post',
       url: `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=highscoreContent&category=1&type=3&searchRelId=100545&site=${page}`,
       headers: {
@@ -482,9 +482,7 @@ module.exports = class Bot {
         Cookie:
           'locale=es; maximizeId=null; tabBoxFleets=%7B%222834%22%3A%5B1%2C1642217987%5D%2C%222974%22%3A%5B1%2C1642219002%5D%2C%223111%22%3A%5B1%2C1642219119%5D%7D; __auc=0d49033a17e512274d05b6176a1; _ga=GA1.2.2000616038.1642038720; _gid=GA1.2.498502270.1642038720; gf-cookie-consent-4449562312=|7|1; prsess_100269=0a625ce52e97dc66e67bf1ee865eaa40; gf-token-production=1996af45-e73a-402f-ba9e-79249f22c6f9; __asc=c41c381817e5a448e2a3f84d0ff; pc_idt=ANC8RaoZnd2hCaYdazi4hOpUwYgylbahg4OFWCBLdZimUiEQj-ywj4X8y4A0JFKj3XxMqltdG0EO7zgB3Ym3wkghw-OrCnlMM887Gg9agfKDco8uQ9_AcsvoliyAbE8JePX3OULb5FRuTg2s-jUiCvp643ipwxUsEzvnfA; PHPSESSID=ad44bfc84e7270205266f8c239d766419f2bf26f; prsess_100545=7dc995f8d164acdc6f33f9b92c4c31da',
       },
-    };
-
-    const response = await axios(config);
+    });
     if (
       response.data.includes('You need to enable JavaScript to run this app')
     ) {

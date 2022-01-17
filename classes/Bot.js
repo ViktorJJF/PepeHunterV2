@@ -264,40 +264,49 @@ module.exports = class Bot {
    * @description Escanea planeta y luna (si lo tiene)
    */
   async checkPlanetActivity(coords) {
-    let [galaxy, system, position] = coords.split(':');
     let activities = [];
-    // el formato
-    // {
-    //   date: new Date(),
-    //   lastActivity: null,
-    //   type: moon | planet
-    // }
-    const response = await this.getSolarSystemInformation(galaxy, system);
-    if (response.status === 200 && !response.data) {
-      console.log('LOGUEATE DE NUEVO');
-    } else {
-      let { data } = response;
-      let { galaxyContent } = data.system;
-      for (const content of galaxyContent) {
-        if (content.position === parseInt(position)) {
-          for (const planet of content.planets) {
-            let { planetType } = planet;
-            if (planetType === 1 || planetType === 3) {
-              activities.push({
-                date: new Date(),
-                lastActivity:
-                  planet.activity.showActivity === 15
-                    ? 'on'
-                    : planet.activity.showActivity === false
-                    ? 'off'
-                    : String(planet.activity.idleTime),
-                type: planetType === 1 ? 'planet' : 'moon',
-                coords,
-              });
+    try {
+      let [galaxy, system, position] = coords.split(':');
+      // el formato
+      // {
+      //   date: new Date(),
+      //   lastActivity: null,
+      //   type: moon | planet
+      // }
+      const response = await this.getSolarSystemInformation(galaxy, system);
+      if (response.status === 200 && !response.data) {
+        console.log('LOGUEATE DE NUEVO');
+        throw new Error('Cookie vencida');
+      } else {
+        let { data } = response;
+        let { galaxyContent } = data.system;
+        for (const content of galaxyContent) {
+          if (content.position === parseInt(position)) {
+            for (const planet of content.planets) {
+              let { planetType } = planet;
+              if (planetType === 1 || planetType === 3) {
+                activities.push({
+                  date: new Date(),
+                  lastActivity:
+                    planet.activity.showActivity === 15
+                      ? 'on'
+                      : planet.activity.showActivity === false
+                      ? 'off'
+                      : String(planet.activity.idleTime),
+                  type: planetType === 1 ? 'planet' : 'moon',
+                  coords,
+                });
+              }
             }
           }
         }
       }
+    } catch (error) {
+      console.log(error);
+      // si algo salio mal, repetir la accion
+      let page = await this.createNewPage();
+      await this.checkLoginStatus(page);
+      return this.checkPlanetActivity(coords);
     }
     return activities;
   }

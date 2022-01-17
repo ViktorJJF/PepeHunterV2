@@ -25,6 +25,7 @@ let schema = new Schema(
     moonDestroyed: Boolean,
     coords: { type: String, unique: true },
     playerId: Number,
+    debris: {},
   },
   { versionKey: false, timestamps: true },
 );

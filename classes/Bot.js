@@ -310,7 +310,6 @@ module.exports = class Bot {
       console.log('LOGUEATE DE NUEVO');
     } else {
       let { data } = response;
-      console.log('el estado: ', response.status);
       let { galaxyContent } = data.system;
       for (const content of galaxyContent) {
         let planetJson = {};
@@ -318,6 +317,13 @@ module.exports = class Bot {
         planetJson.galaxy = content.galaxy;
         planetJson.system = content.system;
         planetJson.position = content.position;
+        if (
+          content.position === 16 &&
+          content.planets.planetName === 'Campo de escombros'
+        ) {
+          // verificar si tiene escombros de expediciones
+          planetJson.debris = content.planets.resources;
+        }
         planetJson.coords = `${content.galaxy}:${content.system}:${content.position}`;
 
         if (content.planets.length > 0 && content.player.playerId !== 99999) {
@@ -359,7 +365,6 @@ module.exports = class Bot {
             ).isDestroyed;
           }
           planetJson.playerId = content.player.playerId;
-          console.log('posicion: ', content.position);
         } else if (content.planets.length > 0) {
           // el planeta está vacio / sin jugador
           planetJson.isDestroyed = !!content.planets.find(
@@ -456,7 +461,7 @@ module.exports = class Bot {
     });
   }
 
-  async getMilitaryInformation(page = 1) {
+  async getPlayersInformation(page = 1) {
     let players = [];
 
     const response = await axios({

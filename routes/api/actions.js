@@ -17,47 +17,7 @@ router.post('/scan-universe', async (req, res) => {
       });
     }
     for (let galaxy = 1; galaxy <= config.NUMBER_GALAXIES; galaxy++) {
-      for (let solarSystem = 1; solarSystem <= 499; solarSystem++) {
-        try {
-          let solarSystemPlanets = await bot.solarSystemScraping(
-            galaxy,
-            solarSystem,
-          );
-          console.log(`Escaneado: ${galaxy}:${solarSystem}`);
-          if (solarSystemPlanets.length > 0) {
-            Planets.insertMany(solarSystemPlanets);
-            // for (const planet of solarSystemPlanets) {
-            //   // crear jugadores
-            //   if (planet.playerId && !planet.isAdmin) {
-            //     console.log('creando a: ', planet.playerName);
-            //     new Players({
-            //       playerId: planet.playerId,
-            //       allianceId: planet.allianceId,
-            //       allianceName: planet.allianceName,
-            //       allianceTag: planet.allianceTag,
-            //       alliancememberCount: planet.alliancememberCount,
-            //       highscorePositionAlliance: planet.highscorePositionAlliance,
-            //       name: planet.name,
-            //       rank: planet.rank,
-            //       isBanned: planet.isBanned,
-            //       state: planet.state,
-            //       rankTitle: planet.rankTitle,
-            //       server: planet.server,
-            //     }).save();
-            //   }
-            // }
-          } else {
-            throw new Error('Cookie vencido');
-          }
-        } catch (error) {
-          // si algo salio mal, repetir la accion
-          let page = await bot.createNewPage();
-          page = await bot.checkLoginStatus(page);
-          console.log('error escaneando universo: ', error);
-          solarSystem -= 1;
-        }
-        // await timeout(5 * 1000);
-      }
+      scanGalaxy(bot, galaxy);
     }
   } catch (error) {
     console.log(error);
@@ -132,5 +92,49 @@ router.post('/sync-military-information', async (req, res) => {
     res.status(400).json({ ok: false, msg: 'Algo salio mal' });
   }
 });
+
+async function scanGalaxy(bot, galaxy) {
+  for (let solarSystem = 1; solarSystem <= 499; solarSystem++) {
+    try {
+      let solarSystemPlanets = await bot.solarSystemScraping(
+        galaxy,
+        solarSystem,
+      );
+      console.log(`Escaneado: ${galaxy}:${solarSystem}`);
+      if (solarSystemPlanets.length > 0) {
+        Planets.insertMany(solarSystemPlanets);
+        // for (const planet of solarSystemPlanets) {
+        //   // crear jugadores
+        //   if (planet.playerId && !planet.isAdmin) {
+        //     console.log('creando a: ', planet.playerName);
+        //     new Players({
+        //       playerId: planet.playerId,
+        //       allianceId: planet.allianceId,
+        //       allianceName: planet.allianceName,
+        //       allianceTag: planet.allianceTag,
+        //       alliancememberCount: planet.alliancememberCount,
+        //       highscorePositionAlliance: planet.highscorePositionAlliance,
+        //       name: planet.name,
+        //       rank: planet.rank,
+        //       isBanned: planet.isBanned,
+        //       state: planet.state,
+        //       rankTitle: planet.rankTitle,
+        //       server: planet.server,
+        //     }).save();
+        //   }
+        // }
+      } else {
+        throw new Error('Cookie vencido');
+      }
+    } catch (error) {
+      // si algo salio mal, repetir la accion
+      let page = await bot.createNewPage();
+      page = await bot.checkLoginStatus(page);
+      console.log('error escaneando universo: ', error);
+      solarSystem -= 1;
+    }
+    // await timeout(5 * 1000);
+  }
+}
 
 module.exports = router;

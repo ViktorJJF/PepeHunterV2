@@ -64,8 +64,9 @@ async function updateCreatePlayer(playerId, body, isFromScan) {
     let previousNumberOfShips = player.numberOfShips;
     if (body.militaryPoints && body.numberOfShips) {
       if (
-        body.militaryPoints < previousMilitaryPoints * FACTOR ||
-        body.numberOfShips < previousNumberOfShips * FACTOR
+        (body.militaryPoints < previousMilitaryPoints * FACTOR ||
+          body.numberOfShips < previousNumberOfShips * FACTOR) &&
+        player.rankMilitary < 150
       ) {
         // mandar mensaje telegram
         let message = `🤖 El jugador <b>${player.name}</b> ha sido petado\n`;

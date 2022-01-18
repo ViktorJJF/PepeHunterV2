@@ -113,7 +113,7 @@ async function scanGalaxy(bot, galaxy) {
           if (planet.playerId && !playersUpdated.includes(planet.playerId)) {
             // creando o actualizando jugador
             console.log('actualizando/creando jugador: ', planet.playerName);
-            updateCreatePlayer(planet.playerId, planet);
+            updateCreatePlayer(planet.playerId, planet, true);
             playersUpdated.push(planet.playerId);
           }
         }

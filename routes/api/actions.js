@@ -3,8 +3,10 @@ const express = require('express');
 const router = express.Router();
 
 const Planets = require('../../models/Planets');
-const Players = require('../../models/Players');
 const config = require('../../config');
+const { updateCreatePlayer } = require('../../utils/utils');
+
+let playersUpdated = [];
 
 router.post('/scan-universe', async (req, res) => {
   try {
@@ -65,28 +67,33 @@ router.post('/scan-player', async (req, res) => {
 
 router.post('/sync-military-information', async (req, res) => {
   try {
-    let { nickname } = req.body;
+    console.log('EMPEZANDO A SINCRONIZAR INFORMACION MILITAR');
     let { bot } = global;
-    // buscando sus coordenadas
-    let regex = new RegExp(nickname, 'i');
-    let planets = await Planets.find({ playerName: { $regex: regex } });
-    let activities = [];
-    let promises = planets.map((planet) =>
-      bot.checkPlanetActivity(planet.coords),
-    );
-    let responses = await Promise.all(promises);
-    for (let i = 0; i < planets.length; i++) {
-      for (const response of responses[i]) {
-        activities.push({
-          ...response,
-          name: planets[i].name,
-        });
-      }
-    }
+    let page = 1;
+    let hasNext = true;
     res.status(200).json({
       ok: true,
-      msg: `Terminado`,
+      msg: `Sincronizando información militar`,
     });
+    while (hasNext) {
+      try {
+        let players = await bot.getPlayersInformation(page);
+        if (players.length > 0 && page < 6) {
+          players.map((player) => updateCreatePlayer(player.playerId, player));
+          console.log('TERMINADA: ', page);
+          page += 1;
+        } else {
+          hasNext = false;
+        }
+      } catch (error) {
+        // no se suma la pagina
+        console.log('Error obteniendo informacion: ', error);
+        // si algo salio mal, repetir la accion
+        let newPage = await bot.createNewPage();
+        await bot.checkLoginStatus(newPage);
+      }
+    }
+    console.log('FINALIZADA INFO MILITAR');
   } catch (error) {
     console.log(error);
     res.status(400).json({ ok: false, msg: 'Algo salio mal' });
@@ -102,27 +109,15 @@ async function scanGalaxy(bot, galaxy) {
       );
       console.log(`Escaneado: ${galaxy}:${solarSystem}`);
       if (solarSystemPlanets.length > 0) {
+        for (const planet of solarSystemPlanets) {
+          if (planet.playerId && !playersUpdated.includes(planet.playerId)) {
+            // creando o actualizando jugador
+            console.log('actualizando/creando jugador: ', planet.playerName);
+            updateCreatePlayer(planet.playerId, planet);
+            playersUpdated.push(planet.playerId);
+          }
+        }
         Planets.insertMany(solarSystemPlanets);
-        // for (const planet of solarSystemPlanets) {
-        //   // crear jugadores
-        //   if (planet.playerId && !planet.isAdmin) {
-        //     console.log('creando a: ', planet.playerName);
-        //     new Players({
-        //       playerId: planet.playerId,
-        //       allianceId: planet.allianceId,
-        //       allianceName: planet.allianceName,
-        //       allianceTag: planet.allianceTag,
-        //       alliancememberCount: planet.alliancememberCount,
-        //       highscorePositionAlliance: planet.highscorePositionAlliance,
-        //       name: planet.name,
-        //       rank: planet.rank,
-        //       isBanned: planet.isBanned,
-        //       state: planet.state,
-        //       rankTitle: planet.rankTitle,
-        //       server: planet.server,
-        //     }).save();
-        //   }
-        // }
       } else {
         throw new Error('Cookie vencido');
       }
@@ -135,6 +130,7 @@ async function scanGalaxy(bot, galaxy) {
     }
     // await timeout(5 * 1000);
   }
+  playersUpdated = [];
 }
 
 module.exports = router;

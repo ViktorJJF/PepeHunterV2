@@ -17,6 +17,11 @@ const routes = [
         name: 'Universe',
         component: () => import('@/views/Universe.vue'),
       },
+      {
+        path: '/jugadores',
+        name: 'Players',
+        component: () => import('@/views/Players.vue'),
+      },
     ],
   },
 ];

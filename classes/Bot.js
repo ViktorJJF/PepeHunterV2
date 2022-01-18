@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const axios = require('axios');
 const cheerio = require('cheerio');
-const { timeout } = require('../utils/utils');
+const { timeout, convertToInt } = require('../utils/utils');
 const config = require('../config');
 
 module.exports = class Bot {
@@ -76,28 +76,38 @@ module.exports = class Bot {
           delay: this.typingDelay,
         },
       );
-      // el inicio de sesion es mediante cookie
-      await page.evaluate((token) => {
-        console.log('el token: ', token);
-        function setCookie(name, value, days) {
-          let expires = '';
-          if (days) {
-            let date = new Date();
-            date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-            expires = `; expires=${date.toUTCString()}`;
+      if (process.env.NODE_ENV === 'development') {
+        await page.waitForSelector(
+          '#loginTab > #loginForm > p > .button-primary > span',
+        );
+        await page.evaluate(() => {
+          document.querySelector("button[type='submit']").click();
+        });
+      } else {
+        // el inicio de sesion es mediante cookie
+        await page.evaluate((token) => {
+          console.log('el token: ', token);
+          function setCookie(name, value, days) {
+            let expires = '';
+            if (days) {
+              let date = new Date();
+              date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+              expires = `; expires=${date.toUTCString()}`;
+            }
+            document.cookie = `${name}=${value || ''}${expires}; path=/`;
           }
-          document.cookie = `${name}=${value || ''}${expires}; path=/`;
-        }
-        setCookie('gf-token-production', token, 7);
-        console.log('COOKIE AGREGADO!');
-        return true;
-      }, config.GF_TOKEN);
-      // await page.goto(
-      //   "https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1"
-      // );
-      await page.goto(
-        `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`,
-      );
+          setCookie('gf-token-production', token, 7);
+          console.log('COOKIE AGREGADO!');
+          return true;
+        }, config.GF_TOKEN);
+        // await page.goto(
+        //   "https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1"
+        // );
+        await page.goto(
+          `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`,
+        );
+      }
+
       await page.waitForSelector('.column > div > #joinGame > a > .button', {
         timeout: 3000,
       });
@@ -142,6 +152,8 @@ module.exports = class Bot {
     try {
       page = page || this.page;
       let currentPage = null;
+      // refrescando pagina
+      await this.refreshPage(page);
       currentPage = await page.evaluate(() => {
         let selector;
         selector = document.querySelector('div#toolbarcomponent');
@@ -217,6 +229,19 @@ module.exports = class Bot {
     } catch (error) {
       console.log('aaaaaa', error);
     }
+  }
+
+  async refreshPage(page) {
+    page = page || this.page;
+    console.log('refrescando ogame');
+    await page.waitForSelector('.smallplanet', {
+      timeout: 15000,
+    });
+    let planets = await page.$$('.smallplanet');
+    let selectedPlanet = planets[0];
+    await timeout(1.5 * 1000);
+    await selectedPlanet.evaluate((e) => e.querySelector('a').click());
+    // await this.navigationPromise;
   }
 
   async goToPage(pageName, page) {
@@ -374,6 +399,26 @@ module.exports = class Bot {
             ).isDestroyed;
           }
           planetJson.playerId = content.player.playerId;
+          // verificando actividades
+          for (const planet of content.planets) {
+            let { planetType } = planet;
+            if (planetType === 1) {
+              planetJson.planetActivity =
+                planet.activity.showActivity === 15
+                  ? 'on'
+                  : planet.activity.showActivity === false
+                  ? 'off'
+                  : String(planet.activity.idleTime);
+            }
+            if (planetType === 3) {
+              planetJson.moonActivity =
+                planet.activity.showActivity === 15
+                  ? 'on'
+                  : planet.activity.showActivity === false
+                  ? 'off'
+                  : String(planet.activity.idleTime);
+            }
+          }
         } else if (content.planets.length > 0) {
           // el planeta está vacio / sin jugador
           planetJson.isDestroyed = !!content.planets.find(
@@ -493,8 +538,7 @@ module.exports = class Bot {
         'Sec-Fetch-Dest': 'empty',
         Referer: `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=highscore&site=3&category=1&searchRelId=${config.PLAYER_ID}`,
         'Accept-Language': 'en,en-US;q=0.9,es-ES;q=0.8,es;q=0.7',
-        Cookie:
-          'locale=es; maximizeId=null; tabBoxFleets=%7B%222834%22%3A%5B1%2C1642217987%5D%2C%222974%22%3A%5B1%2C1642219002%5D%2C%223111%22%3A%5B1%2C1642219119%5D%7D; __auc=0d49033a17e512274d05b6176a1; _ga=GA1.2.2000616038.1642038720; _gid=GA1.2.498502270.1642038720; gf-cookie-consent-4449562312=|7|1; prsess_100269=0a625ce52e97dc66e67bf1ee865eaa40; gf-token-production=1996af45-e73a-402f-ba9e-79249f22c6f9; __asc=c41c381817e5a448e2a3f84d0ff; pc_idt=ANC8RaoZnd2hCaYdazi4hOpUwYgylbahg4OFWCBLdZimUiEQj-ywj4X8y4A0JFKj3XxMqltdG0EO7zgB3Ym3wkghw-OrCnlMM887Gg9agfKDco8uQ9_AcsvoliyAbE8JePX3OULb5FRuTg2s-jUiCvp643ipwxUsEzvnfA; PHPSESSID=ad44bfc84e7270205266f8c239d766419f2bf26f; prsess_100545=7dc995f8d164acdc6f33f9b92c4c31da',
+        Cookie: this.getFormattedCookies(),
       },
     });
     if (
@@ -506,26 +550,23 @@ module.exports = class Bot {
       let $ = cheerio.load(response.data);
       $('tbody tr').each((index, element) => {
         // console.log('El rank: ', $(element));
+        console.log('el element: ', $('.score', element).text().trim());
+        let linkToPrincipal = $('.name>a', element)
+          .attr('href')
+          .trim()
+          .match(/\d+/g);
         players.push({
           playerId: parseInt($(element).attr('id').replace('position', '')),
-          allianceId: '',
-          allianceName: '',
-          allianceTag: '',
-          alliancememberCount: '',
-          highscorePositionAlliance: '',
           name: $('.playername', element).text().trim(),
-          numberOfShips: parseInt(
+          numberOfShips: convertToInt(
             $('.score', element).attr('title').replace('Naves:', '').trim(),
           ),
-          state: '',
-          rankTitle: '',
-          server: '',
-          militaryPoints: parseInt($('.score', element).text().trim()),
-          rankMilitary: parseInt($('.position', element).text().trim()),
+          server: config.SERVER,
+          militaryPoints: convertToInt($('.score', element).text().trim()),
+          rankMilitary: convertToInt($('.position', element).text().trim()),
+          mainPlanet: `${linkToPrincipal[1]}:${linkToPrincipal[2]}:${linkToPrincipal[3]}`,
         });
       });
-      console.log('🚀 Aqui *** -> players', players);
-      console.log('estado de respuesta: ', response.status);
     }
     return players;
   }

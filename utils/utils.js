@@ -1,3 +1,7 @@
+const axios = require('axios');
+const Players = require('../models/Players');
+const config = require('../config');
+
 function timeout(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -18,6 +22,10 @@ function Random(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function convertToInt(str) {
+  return parseInt(str.replace(/\./g, ''));
 }
 
 function setCommonHeaders({ Referer, Cookie, contentType } = {}) {
@@ -45,9 +53,57 @@ function setCommonHeaders({ Referer, Cookie, contentType } = {}) {
   return headers;
 }
 
+/**
+ * @Description se verifica si el player existe por el playerId de ogame
+ */
+async function updateCreatePlayer(playerId, body, isFromScan) {
+  let player = await Players.findOne({ playerId });
+  if (player) {
+    const FACTOR = 0.75;
+    let previousMilitaryPoints = player.militaryPoints;
+    let previousNumberOfShips = player.numberOfShips;
+    if (body.militaryPoints && body.numberOfShips) {
+      if (
+        body.militaryPoints < previousMilitaryPoints * FACTOR ||
+        body.numberOfShips < previousNumberOfShips * FACTOR
+      ) {
+        // mandar mensaje telegram
+        let message = `🤖 El jugador <b>${player.name}</b> ha sido petado\n`;
+        message += `<b>Antes tenía:</b> ${previousMilitaryPoints} puntos militares y ${previousNumberOfShips} naves\n`;
+        message += `<b>Ahora tiene:</b> ${body.militaryPoints} puntos militares y ${body.numberOfShips} naves`;
+        sendTelegramMessage(config.TELEGRAM_OWN_ID, message, false);
+      }
+    }
+    await Players.findOneAndUpdate({ playerId }, body);
+  } else if (!isFromScan) {
+    // no crear jugador si viene del escaneo
+    let newPlayer = new Players(body);
+    await newPlayer.save();
+  }
+}
+
+async function sendTelegramMessage(senderId, message, isShared) {
+  axios
+    .post(`${config.PEPEBOTDOMAIN}/telegram/message`, {
+      senderId,
+      message,
+      isShared,
+    })
+    .then((res) => {
+      console.log('mensaje de telegram enviado con éxito!');
+      //   console.log(res.data);
+    })
+    .catch((err) => {
+      console.log('un error enviando el mensaje de telegram...');
+      console.error(err);
+    });
+}
 module.exports = {
   timeout,
   msToTime,
   Random,
   setCommonHeaders,
+  convertToInt,
+  updateCreatePlayer,
+  sendTelegramMessage,
 };

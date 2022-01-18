@@ -26,8 +26,10 @@ let schema = new Schema(
     coords: { type: String, unique: true },
     playerId: Number,
     debris: {},
+    planetActivity: String,
+    moonActivity: String,
   },
-  { versionKey: false, timestamps: true },
+  { versionKey: false, timestamps: true, toObject: { virtuals: true } },
 );
 
 module.exports = mongoose.model('Planets', schema);

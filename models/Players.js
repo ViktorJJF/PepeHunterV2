@@ -19,9 +19,25 @@ let schema = new Schema(
     militaryPoints: Number,
     numberOfShips: Number,
     rankMilitary: Number,
+    mainPlanet: String,
+    isHunted: { type: Boolean, default: false },
   },
   { versionKey: false, timestamps: true },
 );
+
+schema.virtual('planets', {
+  ref: 'Planets',
+  localField: 'playerId',
+  foreignField: 'playerId',
+});
+
+// auto populate
+let autoPopulateLead = function (next) {
+  this.populate('planets');
+  next();
+};
+
+schema.pre('findOne', autoPopulateLead).pre('find', autoPopulateLead);
 
 mongoose.model('Players', schema).syncIndexes();
 

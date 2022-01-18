@@ -13,5 +13,19 @@ export default function initialize(app) {
         return 'Fecha inválida';
       }
     },
+    formatDateWithHour(value) {
+      try {
+        const formattedValue = new Date(value) || value;
+        return format(
+          new Date(formattedValue),
+          "d 'de' MMMM 'del' yyyy 'a las' hh:mm:ss aaa",
+          {
+            locale: es,
+          },
+        );
+      } catch (error) {
+        return 'Fecha inválida';
+      }
+    },
   };
 }

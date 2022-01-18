@@ -154,6 +154,24 @@ th {
   height: 100vh;
 }
 
+.comments,
+.chatstatus,
+.playerstatus {
+  background-image: url(https://gf1.geo.gfsrv.net/cdn6f/91ad13c8f9a7e9390085d12adde508.png);
+  display: inline-block !important;
+  height: 13px !important;
+  width: 13px !important;
+}
+
+.playerstatus.online,
+.icon.online {
+  background-position: 0 -833px !important;
+}
+
+#buddylist .playerstatus {
+  margin: 1px 3px 0 0 !important;
+}
+
 /* td {
   width: 100px;
   margin: 0px;

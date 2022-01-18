@@ -71,7 +71,7 @@ async function updateCreatePlayer(playerId, body, isFromScan) {
         let message = `🤖 El jugador <b>${player.name}</b> ha sido petado\n`;
         message += `<b>Antes tenía:</b> ${previousMilitaryPoints} puntos militares y ${previousNumberOfShips} naves\n`;
         message += `<b>Ahora tiene:</b> ${body.militaryPoints} puntos militares y ${body.numberOfShips} naves`;
-        sendTelegramMessage(config.TELEGRAM_OWN_ID, message, false);
+        sendTelegramMessage(config.TELEGRAM_OWN_ID, message, true);
       }
     }
     await Players.findOneAndUpdate({ playerId }, body);

@@ -2,7 +2,8 @@ module.exports = {
   SERVER: 's183',
   LANGUAGE: 'es',
   UNIVERSE: 'Earth',
-  PEPEBOTDOMAIN: 'http://localhost:7000',
+  PEPEBOTDOMAIN:
+    'https://2f0e-2001-1388-59a2-9cfd-a88b-d813-b2e1-9b24.ngrok.io',
   PEPEHUNTERDOMAIN: 'https://pepehunter-v2.herokuapp.com',
   TELEGRAM_OWN_ID: '624818317',
   NUMBER_GALAXIES: 5,

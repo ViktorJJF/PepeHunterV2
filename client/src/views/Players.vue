@@ -159,6 +159,7 @@ export default {
           el.planets && el.planets.length > 0
             ? el.planets.some(
                 (planet) =>
+                  planet &&
                   planet.planetActivity &&
                   (planet.planetActivity === 'on' ||
                     planet.moonActivity === 'on'),
@@ -167,7 +168,9 @@ export default {
         isOnPrincipal:
           el.planets && el.planets.length > 0
             ? el.planets.find((planet) => planet.coords === el.mainPlanet)
-                .planetActivity === 'on'
+              ? el.planets.find((planet) => planet.coords === el.mainPlanet)
+                  .planetActivity === 'on'
+              : 'SIN INFORMACIÓN'
             : 'SIN INFORMACIÓN',
         ratio: (el.numberOfShips / el.militaryPoints).toFixed(2),
       }));

@@ -59,13 +59,13 @@ function setCommonHeaders({ Referer, Cookie, contentType } = {}) {
 async function updateCreatePlayer(playerId, body, isFromScan) {
   let player = await Players.findOne({ playerId });
   if (player) {
-    const FACTOR = 0.75;
+    const FACTOR = 0.7;
     let previousMilitaryPoints = player.militaryPoints;
     let previousNumberOfShips = player.numberOfShips;
     if (body.militaryPoints && body.numberOfShips) {
       if (
-        (body.militaryPoints < previousMilitaryPoints * FACTOR ||
-          body.numberOfShips < previousNumberOfShips * FACTOR) &&
+        body.militaryPoints < previousMilitaryPoints * FACTOR &&
+        body.numberOfShips < previousNumberOfShips * FACTOR &&
         player.rankMilitary < 150
       ) {
         // mandar mensaje telegram

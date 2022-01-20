@@ -17,11 +17,11 @@
         <b>Resaltar por ranking</b>
         <div class="mb-2">
           <span class="mx-2">desde</span>
-          <el-input-number v-model="minRank" :min="0" :max="9999" />
+          <el-input v-model="minRank" type="number" placeholder="Mínimo" />
         </div>
         <div>
           <span class="mx-2">hasta</span>
-          <el-input-number v-model="maxRank" :min="0" :max="9999" />
+          <el-input v-model="maxRank" type="number" placeholder="Máximo" />
         </div>
       </div>
       <div class="col-sm-3">
@@ -178,9 +178,10 @@ export default {
     async page() {
       this.initialize(this.page);
     },
-    selectedAllianceName() {
-      if (this.selectedAllianceName.trim().length === 0) {
-        this.selectedAllianceName = '';
+    selectedAlliance() {
+      console.log('entrando: ', this.selectedAlliance);
+      if (this.selectedAlliance.trim().length === 0) {
+        this.selectedAlliance = '';
         // this.initialize();
       }
     },
@@ -192,11 +193,11 @@ export default {
     meetFilterConditions(player) {
       return (
         player &&
-        (this.minRank > 0 || this.maxRank > 0 || this.selectedAllianceName) &&
+        (this.minRank > 0 || this.maxRank > 0 || this.selectedAlliance) &&
         (this.minRank > 0 || this.maxRank > 0
           ? player.rank >= this.minRank && player.rank <= this.maxRank
           : true) &&
-        (this.selectedAllianceName
+        (this.selectedAlliance
           ? player.allianceName === this.selectedAllianceName
           : true)
       );

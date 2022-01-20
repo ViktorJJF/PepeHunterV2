@@ -107,11 +107,10 @@ async function scanGalaxy(bot, galaxy) {
         for (const planet of solarSystemPlanets) {
           if (planet.playerId && !playersUpdated.includes(planet.playerId)) {
             // creando o actualizando jugador
-            console.log('actualizando/creando jugador: ', planet.playerName);
             updateCreatePlayer(planet.playerId, planet, true);
             playersUpdated.push(planet.playerId);
           }
-          Planets.findOneAndUpdate({ coords: planet.coords }, planet);
+          Planets.updateOne({ coords: planet.coords }, planet);
         }
         // Planets.insertMany(solarSystemPlanets);
       } else {

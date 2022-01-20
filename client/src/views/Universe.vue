@@ -1,19 +1,43 @@
 <template>
   <div class="container custom-margin">
     <form action="/universo" method="POST">
-      <div class="form-group">
-        <label for="playerNameInput"><b># de Galaxia</b></label>
-        <el-select
-          v-model="selectedGalaxy"
-          class="m-2"
-          placeholder="Select"
-          size="large"
-          @change="initialize()"
-        >
-          <el-option v-for="i in 9" :key="i" :label="i" :value="i"> </el-option>
-        </el-select>
-      </div>
+      <label for="playerNameInput"><b># de Galaxia</b></label>
+      <el-select
+        v-model="selectedGalaxy"
+        class="m-2"
+        placeholder="Select"
+        size="large"
+        @change="initialize()"
+      >
+        <el-option v-for="i in 5" :key="i" :label="i" :value="i"> </el-option>
+      </el-select>
     </form>
+    <div class="row">
+      <div class="col-sm-3">
+        <b>Resaltar por ranking</b>
+        <div class="mb-2">
+          <span class="mx-2">desde</span>
+          <el-input-number v-model="minRank" :min="0" :max="9999" />
+        </div>
+        <div>
+          <span class="mx-2">hasta</span>
+          <el-input-number v-model="maxRank" :min="0" :max="9999" />
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <b>Resaltar por alianza</b>
+        <div class="mb-2">
+          <el-autocomplete
+            v-model="selectedAlliance"
+            style="display: block"
+            :fetch-suggestions="($event, callback) => callback(alliances)"
+            placeholder="Seleccione una alianza"
+            @select="selectedAllianceName = $event._id"
+            value-key="nameWithMembers"
+          ></el-autocomplete>
+        </div>
+      </div>
+    </div>
     <h2 class="mb-2">
       Distribución de galaxia {{ selectedGalaxy }} -
       <small>Último scaneo {{ $filters.formatDate(new Date()) }}</small>
@@ -32,7 +56,15 @@
         <tr v-for="(system, i) in systems" :key="i + 'solarSystem'">
           <th scope="row">[{{ selectedGalaxy }}:{{ i + 1 }}:x]</th>
           <td
-            :class="planet.state + ' ' + (planet.honor ? 'yellowPlayer' : '')"
+            :class="
+              planet.state +
+              ' ' +
+              (planet.honor
+                ? meetFilterConditions(planet)
+                  ? 'filterPlayer'
+                  : 'yellowPlayer'
+                : '')
+            "
             v-for="(planet, planetIndex) in system"
             :key="planetIndex"
           >
@@ -90,6 +122,8 @@
 
 <script>
 const ENTITY = 'planets';
+import planetsApi from '@/services/api/planets';
+
 export default {
   components: {},
   data() {
@@ -113,6 +147,11 @@ export default {
       dialog: false,
       selectedGalaxy: 1,
       systems: [],
+      minRank: 0,
+      maxRank: 0,
+      alliances: [],
+      selectedAlliance: '',
+      selectedAllianceName: '',
     };
   },
   computed: {
@@ -139,15 +178,33 @@ export default {
     async page() {
       this.initialize(this.page);
     },
+    selectedAllianceName() {
+      if (this.selectedAllianceName.trim().length === 0) {
+        this.selectedAllianceName = '';
+        // this.initialize();
+      }
+    },
   },
   async mounted() {
     this.initialize();
   },
   methods: {
+    meetFilterConditions(player) {
+      return (
+        player &&
+        (this.minRank > 0 || this.maxRank > 0 || this.selectedAllianceName) &&
+        (this.minRank > 0 || this.maxRank > 0
+          ? player.rank >= this.minRank && player.rank <= this.maxRank
+          : true) &&
+        (this.selectedAllianceName
+          ? player.allianceName === this.selectedAllianceName
+          : true)
+      );
+    },
     async initialize(page = 1) {
       this.systems = [];
       // llamada asincrona de items
-      await Promise.all([
+      let responses = await Promise.all([
         this.$store.dispatch(ENTITY + 'Module/list', {
           page,
           search: this.search,
@@ -157,7 +214,15 @@ export default {
           galaxy: this.selectedGalaxy,
           limit: 999999,
         }),
+        planetsApi.getAlliances(),
       ]);
+      this.alliances = responses[1].data.payload
+        .filter((el) => el._id)
+        .map((el) => ({
+          _id: el._id,
+          nameWithMembers: `${el.docs.highscorePositionAlliance}. ${el._id}, (${el.docs.alliancememberCount} miembros)`,
+        }));
+      console.log('🚀 Aqui *** -> this.alliances', this.alliances);
       // asignar al data del componente
       this[ENTITY] = this.$deepCopy(
         this.$store.state[ENTITY + 'Module'][ENTITY],

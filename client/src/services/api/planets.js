@@ -16,4 +16,7 @@ export default {
   delete(id) {
     return axios.delete(`/api/planets/${id}`);
   },
+  getAlliances() {
+    return axios.get('/api/planets/alliances');
+  },
 };

@@ -12,6 +12,15 @@ const router = express.Router();
 //   session: false,
 // });
 
+router.get(
+  '/alliances',
+  // requireAuth,
+  // AuthController.roleAuthorization(['SUPERADMIN', 'ADMIN']),
+  trimRequest.all,
+  // validate.deletes,
+  controller.getAlliances,
+);
+
 /*
  * Get all items route
  */

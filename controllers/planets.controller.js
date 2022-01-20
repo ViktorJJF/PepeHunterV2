@@ -96,6 +96,29 @@ const deletes = async (req, res) => {
     utils.handleError(res, error);
   }
 };
+const getAlliances = async (req, res) => {
+  try {
+    const alliances = await model
+      .aggregate([
+        {
+          $group: {
+            _id: '$allianceName',
+            docs: {
+              $first: {
+                alliancememberCount: '$alliancememberCount',
+                allianceTag: '$allianceTag',
+                highscorePositionAlliance: '$highscorePositionAlliance',
+              },
+            },
+          },
+        },
+      ])
+      .sort({ 'docs.highscorePositionAlliance': 1 });
+    res.status(200).json({ ok: true, payload: alliances });
+  } catch (error) {
+    utils.handleError(res, error);
+  }
+};
 
 module.exports = {
   list,
@@ -104,4 +127,5 @@ module.exports = {
   create,
   update,
   deletes,
+  getAlliances,
 };

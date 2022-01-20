@@ -69,7 +69,6 @@ const module = {
           .update(id, data)
           .then((res) => {
             commit('loadingModule/showLoading', false, { root: true });
-            buildSuccess('Registro actualizado con éxito', commit);
             commit('update', {
               id,
               data: res.data.payload,

@@ -153,7 +153,7 @@ module.exports = class Bot {
       page = page || this.page;
       let currentPage = null;
       // refrescando pagina
-      await this.refreshPage(page);
+      page = await this.createNewPage();
       currentPage = await page.evaluate(() => {
         let selector;
         selector = document.querySelector('div#toolbarcomponent');

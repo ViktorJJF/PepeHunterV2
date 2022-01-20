@@ -4,20 +4,14 @@ const router = express.Router();
 
 const Planets = require('../../models/Planets');
 const config = require('../../config');
-const { updateCreatePlayer } = require('../../utils/utils');
+const { updateCreatePlayer, keepTopPlayers } = require('../../utils/utils');
 
 let playersUpdated = [];
 
 router.post('/scan-universe', async (req, res) => {
   try {
     res.status(200).json({ ok: true, msg: 'Todo ok' });
-    let { keepPrevious } = req.body;
     let { bot } = global;
-    if (!keepPrevious) {
-      await Planets.deleteMany({
-        server: config.SERVER,
-      });
-    }
     for (let galaxy = 1; galaxy <= config.NUMBER_GALAXIES; galaxy++) {
       scanGalaxy(bot, galaxy);
     }
@@ -78,7 +72,7 @@ router.post('/sync-military-information', async (req, res) => {
     while (hasNext) {
       try {
         let players = await bot.getPlayersInformation(page);
-        if (players.length > 0 && page < 6) {
+        if (players.length > 0 && page < 4) {
           players.map((player) => updateCreatePlayer(player.playerId, player));
           console.log('TERMINADA: ', page);
           page += 1;
@@ -93,6 +87,7 @@ router.post('/sync-military-information', async (req, res) => {
         await bot.checkLoginStatus(newPage);
       }
     }
+    keepTopPlayers();
     console.log('FINALIZADA INFO MILITAR');
   } catch (error) {
     console.log(error);
@@ -116,8 +111,9 @@ async function scanGalaxy(bot, galaxy) {
             updateCreatePlayer(planet.playerId, planet, true);
             playersUpdated.push(planet.playerId);
           }
+          Planets.findOneAndUpdate({ coords: planet.coords }, planet);
         }
-        Planets.insertMany(solarSystemPlanets);
+        // Planets.insertMany(solarSystemPlanets);
       } else {
         throw new Error('Cookie vencido');
       }

@@ -10,14 +10,29 @@
         {{ $filters.formatDateWithHour(players[0].planets[0].updatedAt) }}
       </div>
     </div>
+    <el-input class="mb-3" v-model="searchPlayer" placeholder="Buscar a..." />
+
     <br />
     <br />
     <el-table
-      stripe
+      border
       :data="players"
       :default-sort="{ prop: 'date', order: 'descending' }"
       style="width: 100%"
+      :row-class-name="tableRowClassName"
     >
+      <el-table-column label="Hunter" sortable>
+        <template #default="scope">
+          <el-switch
+            class="ml-2"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="huntPlayer(scope.row)"
+            v-model="scope.row.isHunted"
+            :disabled="scope.row.state == 'vacation' ? true : false"
+          />
+        </template>
+      </el-table-column>
       <el-table-column prop="rank" label="rank" sortable />
       <el-table-column prop="rankMilitary" label="Rank Militar" sortable />
       <el-table-column prop="isOn" label="¿Está on? " sortable>
@@ -83,6 +98,8 @@
 
 <script>
 const ENTITY = 'players';
+import { buildSuccess } from '@/utils/utils';
+
 export default {
   components: {},
   data() {
@@ -106,6 +123,8 @@ export default {
       dialog: false,
       selectedGalaxy: 1,
       systems: [],
+      checkboxGroup1: [],
+      searchPlayer: '',
     };
   },
   computed: {
@@ -123,12 +142,12 @@ export default {
     },
   },
   watch: {
-    async search() {
-      clearTimeout(this.delayTimer);
-      this.delayTimer = setTimeout(() => {
-        this.initialize(this.page);
-      }, 600);
-    },
+    // async search() {
+    //   clearTimeout(this.delayTimer);
+    //   this.delayTimer = setTimeout(() => {
+    //     this.initialize(this.page);
+    //   }, 600);
+    // },
     async page() {
       this.initialize(this.page);
     },
@@ -137,6 +156,18 @@ export default {
     this.initialize();
   },
   methods: {
+    tableRowClassName(row) {
+      return row.row.state == 'vacation' ? 'vacation' : '';
+    },
+    huntPlayer(player) {
+      this.$store.dispatch('playersModule/update', {
+        id: player._id,
+        data: player,
+      });
+      if (player.isHunted) {
+        this.$swal.fire('Good job!', 'Hunteando a ' + player.name, 'success');
+      }
+    },
     async initialize(page = 1) {
       this.systems = [];
       // llamada asincrona de items
@@ -197,5 +228,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

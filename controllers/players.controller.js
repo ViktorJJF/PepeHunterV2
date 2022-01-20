@@ -78,7 +78,6 @@ const create = async (req, res) => {
 };
 const update = async (req, res) => {
   try {
-    req.body.userId = req.user._id;
     const id = await utils.isIDGood(req.params.id);
     const doesItemExists = await itemExistsExcludingItself(id, req.body);
     if (!doesItemExists) {

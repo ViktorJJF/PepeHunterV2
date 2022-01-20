@@ -1,6 +1,4 @@
-<template>
-  <footer class="main-footer">©Copyright Todos los derechos reservados.</footer>
-</template>
+<template></template>
 
 <script>
 export default {};

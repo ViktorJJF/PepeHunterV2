@@ -83,6 +83,10 @@ async function updateCreatePlayer(playerId, body, isFromScan) {
   }
 }
 
+function keepTopPlayers() {
+  Players.deleteMany({ rankMilitary: { $gte: 300 } });
+}
+
 async function sendTelegramMessage(senderId, message, isShared) {
   axios
     .post(`${config.PEPEBOTDOMAIN}/telegram/message`, {
@@ -107,4 +111,5 @@ module.exports = {
   convertToInt,
   updateCreatePlayer,
   sendTelegramMessage,
+  keepTopPlayers,
 };

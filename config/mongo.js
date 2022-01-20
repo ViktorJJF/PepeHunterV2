@@ -3,8 +3,7 @@ mongoose.plugin(require('mongoose-beautiful-unique-validation')); // unique vali
 mongoose.plugin(require('mongoose-paginate-v2')); // paginator
 mongoose.plugin(require('mongoose-aggregate-paginate-v2'));
 // aggregate paginator
-const DB_URL =
-  'mongodb://ViktorJJF:Sed4cfv52309$@jfbotscluster-shard-00-00.88rtm.mongodb.net:27017,jfbotscluster-shard-00-01.88rtm.mongodb.net:27017,jfbotscluster-shard-00-02.88rtm.mongodb.net:27017/pepeBot?ssl=true&replicaSet=JFBotsCluster-shard-0&authSource=admin&retryWrites=true&w=majority';
+const DB_URL = process.env.MONGO_URI;
 const loadModels = require('../models');
 
 module.exports = () => {

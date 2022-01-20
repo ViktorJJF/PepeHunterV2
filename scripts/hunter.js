@@ -4,6 +4,7 @@ const config = require('../config');
 const { timeout } = require('../utils/utils');
 
 async function startHunter() {
+  if (process.env.NODE_ENV === 'development') return;
   await timeout(10 * 1000);
   console.log('EMPEZANDO HUNTER');
   while (true) {

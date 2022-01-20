@@ -97,6 +97,8 @@ router.post('/sync-military-information', async (req, res) => {
 
 async function scanGalaxy(bot, galaxy) {
   for (let solarSystem = 1; solarSystem <= 499; solarSystem++) {
+    console.log('escaneando ando');
+
     try {
       let solarSystemPlanets = await bot.solarSystemScraping(
         galaxy,
@@ -105,12 +107,22 @@ async function scanGalaxy(bot, galaxy) {
       console.log(`Escaneado: ${galaxy}:${solarSystem}`);
       if (solarSystemPlanets.length > 0) {
         for (const planet of solarSystemPlanets) {
-          if (planet.playerId && !playersUpdated.includes(planet.playerId)) {
-            // creando o actualizando jugador
-            updateCreatePlayer(planet.playerId, planet, true);
-            playersUpdated.push(planet.playerId);
+          if (planet.playerId) {
+            // actualizando
+            let planetToUpdate = await Planets.findOne({
+              coords: planet.coords,
+              server: config.SERVER,
+            });
+            if (planetToUpdate) {
+              planetToUpdate.set(planet);
+              planetToUpdate.save();
+            }
+            if (!playersUpdated.includes(planet.playerId)) {
+              // creando o actualizando jugador
+              updateCreatePlayer(planet.playerId, planet, true);
+              playersUpdated.push(planet.playerId);
+            }
           }
-          Planets.updateOne({ coords: planet.coords }, planet);
         }
         // Planets.insertMany(solarSystemPlanets);
       } else {

@@ -13,4 +13,5 @@ module.exports = {
       : '8051ede3-16e5-4971-9696-80d7822169a1', // obtenido de cookies
   // GF_TOKEN: '16b8bf5c-35b0-43c5-a708-9c96a3a3e26c',
   PLAYER_ID: '100269', // el id de jugador del bot hunter
+  NEWBIE_RANK_THRESHOLD: 200,
 };

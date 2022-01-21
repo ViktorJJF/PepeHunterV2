@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const Planets = require('../../models/Planets');
+const Players = require('../../models/Players');
 const config = require('../../config');
 const { updateCreatePlayer, keepTopPlayers } = require('../../utils/utils');
 
@@ -28,6 +29,12 @@ router.post('/scan-player', async (req, res) => {
     // buscando sus coordenadas
     let regex = new RegExp(nickname, 'i');
     let planets = await Planets.find({ playerName: { $regex: regex } });
+    // se busca al jugador asociado
+    let playerId = planets.length > 0 ? planets[0].playerId : null;
+    let player;
+    if (playerId) {
+      player = await Players.findOne({ playerId });
+    }
     let activities = [];
     let promises = planets.map((planet) =>
       bot.checkPlanetActivity(planet.coords),
@@ -47,6 +54,7 @@ router.post('/scan-player', async (req, res) => {
       payload: {
         activities,
         player: {
+          mainPlanet: player ? player.mainPlanet : '',
           rank: planets[0].rank,
           alliance: planets[0].allianceTag,
           playerName: planets[0].playerName,
@@ -139,5 +147,31 @@ async function scanGalaxy(bot, galaxy) {
   }
   playersUpdated = [];
 }
+
+router.post('/search-off-player', async (req, res) => {
+  try {
+    let { from, to } = req.body;
+    let { bot } = global;
+    // obteniendo planetas en rango
+    let planets = await Planets.find({});
+
+    res.status(200).json({
+      ok: true,
+      msg: `Escaneando a ${nickname}`,
+      payload: {
+        activities,
+        player: {
+          mainPlanet: player ? player.mainPlanet : '',
+          rank: planets[0].rank,
+          alliance: planets[0].allianceTag,
+          playerName: planets[0].playerName,
+        },
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ ok: false, msg: 'Algo salio mal' });
+  }
+});
 
 module.exports = router;

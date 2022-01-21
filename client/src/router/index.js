@@ -22,6 +22,11 @@ const routes = [
         name: 'Players',
         component: () => import('@/views/Players.vue'),
       },
+      {
+        path: '/hunter/:playerId',
+        name: 'Hunter',
+        component: () => import('@/views/Hunter.vue'),
+      },
     ],
   },
 ];

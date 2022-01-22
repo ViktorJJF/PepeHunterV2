@@ -3,9 +3,13 @@ const express = require('express');
 const router = express.Router();
 
 const Planets = require('../../models/Planets');
-const Players = require('../../models/Players');
 const config = require('../../config');
-const { updateCreatePlayer, keepTopPlayers } = require('../../utils/utils');
+const {
+  updateCreatePlayer,
+  keepTopPlayers,
+  scanPlayer,
+  getPlayersInRange,
+} = require('../../utils/utils');
 
 let playersUpdated = [];
 
@@ -25,29 +29,8 @@ router.post('/scan-universe', async (req, res) => {
 router.post('/scan-player', async (req, res) => {
   try {
     let { nickname } = req.body;
-    let { bot } = global;
     // buscando sus coordenadas
-    let regex = new RegExp(nickname, 'i');
-    let planets = await Planets.find({ playerName: { $regex: regex } });
-    // se busca al jugador asociado
-    let playerId = planets.length > 0 ? planets[0].playerId : null;
-    let player;
-    if (playerId) {
-      player = await Players.findOne({ playerId });
-    }
-    let activities = [];
-    let promises = planets.map((planet) =>
-      bot.checkPlanetActivity(planet.coords),
-    );
-    let responses = await Promise.all(promises);
-    for (let i = 0; i < planets.length; i++) {
-      for (const response of responses[i]) {
-        activities.push({
-          ...response,
-          name: planets[i].name,
-        });
-      }
-    }
+    let { activities, player, planets } = await scanPlayer({ nickname });
     res.status(200).json({
       ok: true,
       msg: `Escaneando a ${nickname}`,
@@ -150,23 +133,24 @@ async function scanGalaxy(bot, galaxy) {
 
 router.post('/search-off-player', async (req, res) => {
   try {
-    let { from, to } = req.body;
-    let { bot } = global;
+    let { from, to, rank } = req.body;
     // obteniendo planetas en rango
-    let planets = await Planets.find({});
-
+    let playerIds = await getPlayersInRange(from, to, rank);
+    // escaneando jugadores off
+    let playerNamesOff = [];
+    for (const playerId of playerIds) {
+      let result = await scanPlayer({ playerId });
+      let isOn = result.activities.some(
+        (activity) => activity.lastActivity === 'on',
+      );
+      if (!isOn) {
+        // player off
+        playerNamesOff.push(result.player.playerName);
+      }
+    }
     res.status(200).json({
       ok: true,
-      msg: `Escaneando a ${nickname}`,
-      payload: {
-        activities,
-        player: {
-          mainPlanet: player ? player.mainPlanet : '',
-          rank: planets[0].rank,
-          alliance: planets[0].allianceTag,
-          playerName: planets[0].playerName,
-        },
-      },
+      payload: playerNamesOff,
     });
   } catch (error) {
     console.log(error);

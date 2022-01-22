@@ -1,5 +1,6 @@
 const axios = require('axios');
 const Players = require('../models/Players');
+const Planets = require('../models/Planets');
 const config = require('../config');
 
 function timeout(ms) {
@@ -103,6 +104,53 @@ async function sendTelegramMessage(senderId, message, isShared) {
       console.error(err);
     });
 }
+
+async function getPlayersInRange(from, to, rank = 200) {
+  const [galaxyFrom, systemFrom, positionFrom] = from.split(':');
+  const [galaxyTo, systemTo, positionTo] = to.split(':');
+  let playerIds = await Planets.find({
+    $and: [
+      { galaxy: parseInt(galaxyFrom) },
+      { system: { $gte: parseInt(systemFrom), $lte: parseInt(systemTo) } },
+      { playerId: { $exists: true } },
+      { state: { $ne: 'admin' } },
+      { rank: { $lte: rank } },
+    ],
+  }).distinct('playerId');
+  return playerIds;
+}
+
+async function scanPlayer({ nickname, playerId }) {
+  let { bot } = global;
+
+  let regex = new RegExp(nickname, 'i');
+  let planets = [];
+  if (nickname) {
+    planets = await Planets.find({ playerName: { $regex: regex } });
+  } else {
+    planets = await Planets.find({ playerId });
+  }
+  // se busca al jugador asociado
+  let playerId = planets.length > 0 ? planets[0].playerId : null;
+  let player;
+  if (playerId) {
+    player = await Players.findOne({ playerId });
+  }
+  let activities = [];
+  let promises = planets.map((planet) =>
+    bot.checkPlanetActivity(planet.coords),
+  );
+  let responses = await Promise.all(promises);
+  for (let i = 0; i < planets.length; i++) {
+    for (const response of responses[i]) {
+      activities.push({
+        ...response,
+        name: planets[i].name,
+      });
+    }
+  }
+  return { activities, player, planets };
+}
 module.exports = {
   timeout,
   msToTime,
@@ -112,4 +160,6 @@ module.exports = {
   updateCreatePlayer,
   sendTelegramMessage,
   keepTopPlayers,
+  getPlayersInRange,
+  scanPlayer,
 };

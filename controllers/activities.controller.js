@@ -1,3 +1,4 @@
+const { endOfDayfrom, startOfDay, endOfDay, getHours } = require('date-fns');
 const model = require('../models/Activities');
 const utils = require('../helpers/utils');
 const db = require('../helpers/db');
@@ -87,6 +88,32 @@ const update = async (req, res) => {
     utils.handleError(res, error);
   }
 };
+const getActivitiesByDay = async (req, res) => {
+  try {
+    const { date, playerId } = req.query;
+    console.log('🚀 Aqui *** -> date, playerId', date, playerId);
+    let activities = await model
+      .find({
+        createdAt: {
+          $gte: startOfDay(new Date(date)),
+          $lte: endOfDay(new Date(date)),
+        },
+        playerId,
+      })
+      .sort({ createdAt: 1 });
+    let formattedActivities = [];
+    for (const activity of activities) {
+      const index = getHours(activity.createdAt);
+      if (!formattedActivities[index]) {
+        formattedActivities[index] = [];
+      }
+      formattedActivities[index].push(activity);
+    }
+    res.status(200).json({ ok: true, payload: formattedActivities });
+  } catch (error) {
+    utils.handleError(res, error);
+  }
+};
 const deletes = async (req, res) => {
   try {
     const id = await utils.isIDGood(req.params.id);
@@ -103,4 +130,5 @@ module.exports = {
   create,
   update,
   deletes,
+  getActivitiesByDay,
 };

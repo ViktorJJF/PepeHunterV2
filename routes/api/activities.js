@@ -15,6 +15,7 @@ const router = express.Router();
 /*
  * Get all items route
  */
+router.get('/get-activities-by-day', controller.getActivitiesByDay);
 router.get('/all', controller.listAll);
 
 /*

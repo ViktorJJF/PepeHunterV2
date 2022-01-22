@@ -16,4 +16,9 @@ export default {
   delete(id) {
     return axios.delete(`/api/activities/${id}`);
   },
+  getActivitiesByDay(date, playerId) {
+    return axios.get('/api/activities/get-activities-by-day', {
+      params: { date, playerId },
+    });
+  },
 };

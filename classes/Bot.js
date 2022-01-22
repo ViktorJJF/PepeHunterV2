@@ -133,6 +133,12 @@ module.exports = class Bot {
       return true;
     } catch (error) {
       console.log(error);
+      // intentando nuevo logeo
+      console.log('intentando nuevamente');
+      let secondLogin = await this.login(ogameEmail, ogamePassword, page);
+      if (secondLogin) {
+        return true;
+      }
       return false;
     }
   }

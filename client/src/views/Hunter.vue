@@ -32,6 +32,7 @@
 
 <script>
 const ENTITY = 'activities';
+import activitiesApi from '@/services/api/activities';
 
 export default {
   components: {},
@@ -86,23 +87,16 @@ export default {
     this.initialize();
   },
   methods: {
-    async initialize(page = 1) {
+    async initialize() {
       // llamada asincrona de items
-      await Promise.all([
-        this.$store.dispatch(ENTITY + 'Module/list', {
-          page,
-          search: this.search,
-          fieldsToSearch: this.fieldsToSearch,
-          order: 1,
-          // sort: 'rank',
-          limit: 12,
-        }),
+      const responses = await Promise.all([
+        activitiesApi.getActivitiesByDay(
+          new Date(),
+          this.$route.params.playerId,
+        ),
       ]);
       // asignar al data del componente
-      this[ENTITY] = this.$deepCopy(
-        this.$store.state[ENTITY + 'Module'][ENTITY],
-      );
-      console.log('🚀 Aqui *** -> this[ENTITY]', this[ENTITY]);
+      console.log('responses: ', responses);
     },
     async deleteItem(item) {
       const index = this[ENTITY].indexOf(item);

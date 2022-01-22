@@ -145,6 +145,7 @@ router.post('/search-off-player', async (req, res) => {
       );
       if (!isOn) {
         // player off
+        console.log('😴 DORMIDO: ', result.player.playerName);
         playerNamesOff.push(result.player.playerName);
       }
     }

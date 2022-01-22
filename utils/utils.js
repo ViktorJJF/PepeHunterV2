@@ -131,10 +131,10 @@ async function scanPlayer({ nickname, playerId }) {
     planets = await Planets.find({ playerId });
   }
   // se busca al jugador asociado
-  let playerId = planets.length > 0 ? planets[0].playerId : null;
+  let playerIdScanned = planets.length > 0 ? planets[0].playerId : null;
   let player;
-  if (playerId) {
-    player = await Players.findOne({ playerId });
+  if (playerIdScanned) {
+    player = await Players.findOne({ playerId: playerIdScanned });
   }
   let activities = [];
   let promises = planets.map((planet) =>

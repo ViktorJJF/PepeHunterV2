@@ -110,6 +110,8 @@ async function scanGalaxy(bot, galaxy) {
           }
           if (!playersUpdated.includes(planet.playerId)) {
             // creando o actualizando jugador
+            // cambiando nombre
+            planet.name = planet.playerName;
             updateCreatePlayer(planet.playerId, planet, true);
             playersUpdated.push(planet.playerId);
           }
@@ -167,7 +169,6 @@ router.post('/search-off-player', async (req, res) => {
         checkedPlayers.push(result.player.playerId);
       }
     }
-    sendTelegramMessage('', `son todos los 😴`, true);
   } catch (error) {
     console.log(error);
     res.status(400).json({ ok: false, msg: 'Algo salio mal' });

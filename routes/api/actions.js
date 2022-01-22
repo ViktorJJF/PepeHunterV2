@@ -99,21 +99,19 @@ async function scanGalaxy(bot, galaxy) {
       console.log(`Escaneado: ${galaxy}:${solarSystem}`);
       if (solarSystemPlanets.length > 0) {
         for (const planet of solarSystemPlanets) {
-          if (planet.playerId) {
-            // actualizando
-            let planetToUpdate = await Planets.findOne({
-              coords: planet.coords,
-              server: config.SERVER,
-            });
-            if (planetToUpdate) {
-              planetToUpdate.set(planet);
-              planetToUpdate.save();
-            }
-            if (!playersUpdated.includes(planet.playerId)) {
-              // creando o actualizando jugador
-              updateCreatePlayer(planet.playerId, planet, true);
-              playersUpdated.push(planet.playerId);
-            }
+          // actualizando
+          let planetToUpdate = await Planets.findOne({
+            coords: planet.coords,
+            server: config.SERVER,
+          });
+          if (planetToUpdate) {
+            planetToUpdate.set(planet);
+            planetToUpdate.save();
+          }
+          if (!playersUpdated.includes(planet.playerId)) {
+            // creando o actualizando jugador
+            updateCreatePlayer(planet.playerId, planet, true);
+            playersUpdated.push(planet.playerId);
           }
         }
         // Planets.insertMany(solarSystemPlanets);
@@ -135,32 +133,35 @@ async function scanGalaxy(bot, galaxy) {
 router.post('/search-off-player', async (req, res) => {
   try {
     let { from, to, rank } = req.body;
+    res.status(200).json({
+      ok: true,
+      payload: 'Buscando jugadores off en rango',
+    });
     // obteniendo planetas en rango
     let planets = await getPlayersInRange(from, to, rank);
     // escaneando jugadores off
-    let playerNamesOff = [];
+    let checkedPlayers = [];
     for (const planet of planets) {
       let result = await scanPlayer({ playerId: planet.playerId });
       let isOn = result.activities.some(
         (activity) => activity.lastActivity === 'on',
       );
-      if (!isOn && result.player.state !== 'vacation') {
+      if (
+        !isOn &&
+        result.player.state !== 'vacation' &&
+        !checkedPlayers.includes(result.player.playerId)
+      ) {
         // player off
-        console.log(`😴 ${planet.coords} DORMIDO: `, result.player.name);
         sendTelegramMessage(
           '',
           `😴 <b>${planet.coords}</b> ${
             result.player.allianceTag ? `[${result.player.allianceTag}] ` : ''
-          }$${result.player.name} <code>Rank: ${result.player.rank}</code>`,
+          } ${result.player.name} <code>Rank: ${result.player.rank}</code>`,
           true,
         );
-        playerNamesOff.push(result.player.name);
+        checkedPlayers.push(result.player.playerId);
       }
     }
-    res.status(200).json({
-      ok: true,
-      payload: playerNamesOff,
-    });
   } catch (error) {
     console.log(error);
     res.status(400).json({ ok: false, msg: 'Algo salio mal' });

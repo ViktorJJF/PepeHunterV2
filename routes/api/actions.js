@@ -143,10 +143,10 @@ router.post('/search-off-player', async (req, res) => {
       let isOn = result.activities.some(
         (activity) => activity.lastActivity === 'on',
       );
-      if (!isOn) {
+      if (!isOn && result.player.state !== 'vacation') {
         // player off
-        console.log('😴 DORMIDO: ', result.player.playerName);
-        playerNamesOff.push(result.player.playerName);
+        console.log('😴 DORMIDO: ', result.player.name);
+        playerNamesOff.push(result.player.name);
       }
     }
     res.status(200).json({

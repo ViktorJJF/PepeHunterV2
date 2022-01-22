@@ -3,6 +3,8 @@ const axios = require('axios');
 const config = require('./config');
 const startHunter = require('./scripts/hunter');
 
+if (process.env.NODE_ENV === 'development') return;
+
 console.log('EMPEZANDO CRONJOBS');
 
 // '* * * * * *' - runs every second

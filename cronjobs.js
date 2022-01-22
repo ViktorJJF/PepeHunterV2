@@ -3,8 +3,6 @@ const axios = require('axios');
 const config = require('./config');
 const startHunter = require('./scripts/hunter');
 
-if (process.env.NODE_ENV === 'development') return;
-
 console.log('EMPEZANDO CRONJOBS');
 
 // '* * * * * *' - runs every second
@@ -15,6 +13,8 @@ console.log('EMPEZANDO CRONJOBS');
 
 // cada 15 min - Sincronizacion puntos militares
 schedule.scheduleJob('*/15 * * * *', () => {
+  if (process.env.NODE_ENV === 'development') return;
+
   console.log('EMPEZANDO ACTUALIZACION INFORMACION MILITAR');
   axios
     .post(`${config.PEPEHUNTERDOMAIN}/api/actions/sync-military-information`)
@@ -29,6 +29,7 @@ rule.hour = 4;
 rule.minute = 30;
 
 schedule.scheduleJob(rule, () => {
+  if (process.env.NODE_ENV === 'development') return;
   console.log('EMPEZANDO A ESCANEAR UNIVERSO');
   axios
     .post(`${config.PEPEHUNTERDOMAIN}/api/actions/scan-universe`)

@@ -146,6 +146,9 @@ router.post('/search-off-player', async (req, res) => {
       let isOn = result.activities.some(
         (activity) => activity.lastActivity === 'on',
       );
+      let isTotallyOff = result.activities.every(
+        (activity) => activity.lastActivity === 'off',
+      );
       if (
         !isOn &&
         result.player.state !== 'vacation' &&
@@ -156,12 +159,15 @@ router.post('/search-off-player', async (req, res) => {
           '',
           `😴 <b>${planet.coords}</b> ${
             result.player.allianceTag ? `[${result.player.allianceTag}] ` : ''
-          } ${result.player.name} <code>Rank: ${result.player.rank}</code>`,
+          } ${planet.playerName} <code>Rank: ${planet.rank}</code>${
+            isTotallyOff ? ' Completamente 🛌' : ''
+          }`,
           true,
         );
         checkedPlayers.push(result.player.playerId);
       }
     }
+    sendTelegramMessage('', `son todos los 😴`, true);
   } catch (error) {
     console.log(error);
     res.status(400).json({ ok: false, msg: 'Algo salio mal' });

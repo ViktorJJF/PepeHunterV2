@@ -143,6 +143,7 @@ router.post('/search-off-player', async (req, res) => {
     let planets = await getPlayersInRange(from, to, rank);
     // escaneando jugadores off
     let checkedPlayers = [];
+    let promises = [];
     for (const planet of planets) {
       let result = await scanPlayer({ playerId: planet.playerId });
       let isOn = result.activities.some(
@@ -157,17 +158,26 @@ router.post('/search-off-player', async (req, res) => {
         !checkedPlayers.includes(result.player.playerId)
       ) {
         // player off
-        sendTelegramMessage(
-          '',
-          `😴 <b>${planet.coords}</b> ${
-            result.player.allianceTag ? `[${result.player.allianceTag}] ` : ''
-          } ${planet.playerName} <code>Rank: ${planet.rank}</code>${
-            isTotallyOff ? ' Completamente 🛌' : ''
-          }`,
-          true,
+        promises.push(
+          sendTelegramMessage(
+            '',
+            `😴 <b>${planet.coords}</b> ${
+              result.player.allianceTag ? `[${result.player.allianceTag}] ` : ''
+            } ${planet.playerName} <code>Rank: ${planet.rank}</code>${
+              isTotallyOff ? ' Completamente 🛌' : ''
+            }`,
+            true,
+          ),
         );
+
         checkedPlayers.push(result.player.playerId);
       }
+      await Promise.all(promises);
+      sendTelegramMessage(
+        '',
+        `Por ahora son todos los que están 😴 en esa zona`,
+        true,
+      );
     }
   } catch (error) {
     console.log(error);

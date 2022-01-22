@@ -172,13 +172,13 @@ router.post('/search-off-player', async (req, res) => {
 
         checkedPlayers.push(result.player.playerId);
       }
-      await Promise.all(promises);
-      sendTelegramMessage(
-        '',
-        `Por ahora son todos los que están 😴 en esa zona`,
-        true,
-      );
     }
+    await Promise.all(promises);
+    sendTelegramMessage(
+      '',
+      `Por ahora son todos los que están 😴 en esa zona`,
+      true,
+    );
   } catch (error) {
     console.log(error);
     res.status(400).json({ ok: false, msg: 'Algo salio mal' });

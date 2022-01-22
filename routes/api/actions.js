@@ -9,6 +9,7 @@ const {
   keepTopPlayers,
   scanPlayer,
   getPlayersInRange,
+  sendTelegramMessage,
 } = require('../../utils/utils');
 
 let playersUpdated = [];
@@ -135,17 +136,24 @@ router.post('/search-off-player', async (req, res) => {
   try {
     let { from, to, rank } = req.body;
     // obteniendo planetas en rango
-    let playerIds = await getPlayersInRange(from, to, rank);
+    let planets = await getPlayersInRange(from, to, rank);
     // escaneando jugadores off
     let playerNamesOff = [];
-    for (const playerId of playerIds) {
-      let result = await scanPlayer({ playerId });
+    for (const planet of planets) {
+      let result = await scanPlayer({ playerId: planet.playerId });
       let isOn = result.activities.some(
         (activity) => activity.lastActivity === 'on',
       );
       if (!isOn && result.player.state !== 'vacation') {
         // player off
-        console.log('😴 DORMIDO: ', result.player.name);
+        console.log(`😴 ${planet.coords} DORMIDO: `, result.player.name);
+        sendTelegramMessage(
+          '',
+          `😴 <b>${planet.coords}</b> ${
+            result.player.allianceTag ? `[${result.player.allianceTag}] ` : ''
+          }$${result.player.name} <code>Rank: ${result.player.rank}</code>`,
+          true,
+        );
         playerNamesOff.push(result.player.name);
       }
     }

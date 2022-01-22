@@ -563,7 +563,7 @@ module.exports = class Bot {
           .match(/\d+/g);
         players.push({
           playerId: parseInt($(element).attr('id').replace('position', '')),
-          name: $('.playername', element).text().trim(),
+          // name: $('.playername', element).text().trim(),
           numberOfShips: convertToInt(
             $('.score', element).attr('title').replace('Naves:', '').trim(),
           ),

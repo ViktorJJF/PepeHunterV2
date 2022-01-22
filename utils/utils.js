@@ -105,10 +105,17 @@ async function sendTelegramMessage(senderId, message, isShared) {
     });
 }
 
+/**
+ *
+ * @param {*} from coords
+ * @param {*} to coords
+ * @param {*} rank
+ * @returns Listado planeta de jugadores en rango que cumplen condicion
+ */
 async function getPlayersInRange(from, to, rank = 200) {
   const [galaxyFrom, systemFrom, positionFrom] = from.split(':');
   const [galaxyTo, systemTo, positionTo] = to.split(':');
-  let playerIds = await Planets.find({
+  let planets = await Planets.find({
     $and: [
       { galaxy: parseInt(galaxyFrom) },
       { system: { $gte: parseInt(systemFrom), $lte: parseInt(systemTo) } },
@@ -116,8 +123,8 @@ async function getPlayersInRange(from, to, rank = 200) {
       { state: { $ne: 'admin' } },
       { rank: { $lte: rank } },
     ],
-  }).distinct('playerId');
-  return playerIds;
+  });
+  return planets;
 }
 
 async function scanPlayer({ nickname, playerId }) {

@@ -24,6 +24,6 @@ let schema = new Schema(
   { versionKey: false, timestamps: true },
 );
 
-mongoose.model('OverviewActivities', schema).syncIndexes();
+mongoose.model('Alarms', schema).syncIndexes();
 
-module.exports = mongoose.model('OverviewActivities', schema);
+module.exports = mongoose.model('Alarms', schema);

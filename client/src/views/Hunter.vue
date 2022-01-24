@@ -1,29 +1,50 @@
 <template>
-  <div class="container custom-margin">
+  <div class="custom-margin" v-if="player">
     <table class="table table-bordered border-primary">
       <thead>
         <tr>
           <th scope="col">Planeta</th>
-          <th v-for="i in 24" :key="i" scope="col">{{ i }}</th>
+          <th scope="col">Tipo</th>
+          <th v-for="i in 24" :key="i" scope="col">
+            {{ formatHourHeader(i) }}
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th scope="row">1</th>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <th scope="row">2</th>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr>
-          <th scope="row">3</th>
-          <td colspan="2">Larry the Bird</td>
-          <td>@twitter</td>
+        <tr
+          v-for="(planet, planetIndex) in planetsWithMoons"
+          :key="planetIndex"
+        >
+          <th scope="row">
+            {{ planet.type === 'moon' ? 'Luna' : planet.name }} [{{
+              planet.coords
+            }}]
+          </th>
+          <th scope="row">
+            {{ planet.type === 'moon' ? 'Luna' : 'Planeta' }}
+            {{ planet.type === 'moon' ? '🌘' : '🌎' }}
+          </th>
+          <td
+            v-for="(activity, activityIndex) in activities"
+            :key="activityIndex"
+          >
+            <p
+              v-for="(date, dateIndex) in filterActivitiesByCoords(
+                activity,
+                planet.coords,
+                planet.type,
+              )"
+              :key="dateIndex"
+              :class="{
+                onState: date.lastActivity === 'on',
+                minuteState:
+                  date.lastActivity !== 'on' && date.lastActivity !== 'off',
+                offState: date.lastActivity === 'off',
+              }"
+            >
+              {{ $filters.formatHour(date.createdAt) }} {{ date.lastActivity }}
+            </p>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -55,6 +76,9 @@ export default {
       loadingButton: false,
       search: '',
       dialog: false,
+      player: null,
+      planets: null,
+      planetsWithMoons: null,
     };
   },
   computed: {
@@ -90,11 +114,31 @@ export default {
     async initialize() {
       // llamada asincrona de items
       const responses = await Promise.all([
+        this.$store.dispatch('playersModule/list', {
+          _id: this.$route.params.playerId,
+        }),
         activitiesApi.getActivitiesByDay(
           new Date(),
           this.$route.params.playerId,
         ),
       ]);
+      this.player = responses[0][0];
+
+      this.planets = this.player.planets;
+      // separando planetas de lunas
+      this.planetsWithMoons = this.planets.reduce((acc, el) => {
+        if (el.moon) {
+          acc.push({ ...el, type: 'planet' });
+          acc.push({ ...el, type: 'moon' });
+        } else {
+          acc.push({ ...el, type: 'planet' });
+        }
+        return acc;
+      }, []);
+      this.activities = responses[1].data.payload;
+      let { planets } = this.player;
+      console.log('🚀 Aqui *** -> this.activities', this.activities);
+
       // asignar al data del componente
       console.log('responses: ', responses);
     },
@@ -115,6 +159,24 @@ export default {
             this[ENTITY].splice(index, 1);
           }
         });
+    },
+    filterActivitiesByCoords(activities, coords, type) {
+      return activities.filter(
+        (activity) => activity.coords === coords && activity.type === type,
+      );
+    },
+    formatHourHeader(index) {
+      let today = new Date();
+
+      let myToday = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        index - 1,
+        0,
+        0,
+      );
+      return this.$filters.formatHourHeader(myToday);
     },
   },
 };

@@ -29,7 +29,7 @@ let schema = new Schema(
     planetActivity: String,
     moonActivity: String,
   },
-  { versionKey: false, timestamps: true, toObject: { virtuals: true } },
+  { versionKey: false, timestamps: true },
 );
 
 module.exports = mongoose.model('Planets', schema);

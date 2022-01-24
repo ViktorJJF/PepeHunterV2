@@ -1,15 +1,9 @@
-# JF MEVN-STACK
+# Pepehunter setup
 
-## Project setup
+## ¿What to do first?
 
-```
-npm install
-```
+First, update config.js file. GF_TOKEN can be got from cookies. Then:
 
-### Compiles and hot-reloads for development
-
-```
-npm run dev
-```
-
-tyTo:davellanedam
+1. Use endpoint /sync-military-information to get list of players
+2. Use endpoint /scan-universe to update previous info player and scan current universe
+3. Set to true autoWatchdog properties in players who has pepebot

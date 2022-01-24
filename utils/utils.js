@@ -105,6 +105,21 @@ async function sendTelegramMessage(senderId, message, isShared) {
     });
 }
 
+async function sendTelegramMessageBroadcast(message) {
+  await axios
+    .post(`${config.PEPEBOTDOMAIN}/telegram/message/broadcast`, {
+      message,
+    })
+    .then((res) => {
+      console.log('mensaje broadcast enviado');
+      //   console.log(res.data);
+    })
+    .catch((err) => {
+      console.log('un error enviando el mensaje de telegram broadcast...');
+      console.error(err);
+    });
+}
+
 /**
  *
  * @param {*} from coords
@@ -169,4 +184,5 @@ module.exports = {
   keepTopPlayers,
   getPlayersInRange,
   scanPlayer,
+  sendTelegramMessageBroadcast,
 };

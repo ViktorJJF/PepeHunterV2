@@ -59,11 +59,13 @@
       </el-table-column>
       <el-table-column prop="name" label="Jugador" sortable>
         <template #default="scope">
-          <span>{{
-            scope.row.planets && scope.row.planets.length > 0
-              ? scope.row.planets[0].playerName
-              : scope.row.name
-          }}</span>
+          <span></span>
+          <router-link
+            class="nav-link"
+            aria-current="page"
+            :to="{ name: 'Hunter', params: { playerId: scope.row._id } }"
+            >{{ scope.row.name }}
+          </router-link>
         </template>
       </el-table-column>
       <el-table-column prop="planets" label="Planetas" sortable>
@@ -98,7 +100,6 @@
 
 <script>
 const ENTITY = 'players';
-import { buildSuccess } from '@/utils/utils';
 
 export default {
   components: {},
@@ -157,7 +158,7 @@ export default {
   },
   methods: {
     tableRowClassName(row) {
-      return row.row.state == 'vacation' ? 'vacation' : '';
+      return row.row.state === 'vacation' ? 'vacation' : '';
     },
     huntPlayer(player) {
       this.$store.dispatch('playersModule/update', {

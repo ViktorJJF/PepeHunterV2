@@ -1,7 +1,8 @@
 const Players = require('../models/Players');
 const Activities = require('../models/Activities');
 const config = require('../config');
-const { timeout } = require('../utils/utils');
+const { timeout, sendTelegramMessageBroadcast } = require('../utils/utils');
+const autoWatchdog = require('./autoWatchdog');
 
 async function startHunter() {
   if (process.env.NODE_ENV === 'development') return;
@@ -27,13 +28,8 @@ async function hunterPlayer(player) {
     playerId: player._id,
     coords: { $in: [...player.planets.map((el) => el.coords)] },
   })
-    .limit(player.planets.length)
-    .sort({ createdAt: 1 });
-  for (const recentActivity of recentActivities) {
-    console.log(
-      `ULTIMA [${recentActivity.coords} - ${recentActivity.lastActivity}]`,
-    );
-  }
+    .limit(player.planets.reduce((acc, el) => acc + (el.moon ? 2 : 1), 0))
+    .sort({ createdAt: -1 });
   const { planets } = player;
   const { bot } = global;
   let activities = [];
@@ -50,6 +46,30 @@ async function hunterPlayer(player) {
     }
     activities.push(...response);
   }
+  // comparando y mandando mensajes telegram
+  let isOff = activities.every((activity) => activity.lastActivity === 'off');
+  let isPartiallyOff = activities.every(
+    (activity) => activity.lastActivity !== 'on',
+  );
+  let isPartiallyOffPrev = recentActivities.every(
+    (activity) => activity.lastActivity !== 'on',
+  );
+  if (isOff) {
+    sendTelegramMessageBroadcast(
+      `<b>${player.name}</b> está <b>completamente</b> dormido 😴💤🛌`,
+    );
+  } else if (isPartiallyOffPrev && isPartiallyOff) {
+    sendTelegramMessageBroadcast(
+      `<b>${player.name}</b> está durmiendo 💤 desde el escaneo anterior 😴`,
+    );
+  } else if (isPartiallyOff) {
+    sendTelegramMessageBroadcast(`<b>${player.name}</b> está durmiendo 😴💤`);
+    // verificar si se trata de jugador amigo, para activar watchdog
+    if (player.hasWatchdog) {
+      autoWatchdog(player.name, player.playerId);
+    }
+  }
+
   Activities.insertMany(activities);
 }
 

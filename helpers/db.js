@@ -61,7 +61,7 @@ module.exports = {
   renameKey,
   async checkQueryString(query) {
     return new Promise((resolve, reject) => {
-      //se obtiene campos fuera del filtro y campos
+      // se obtiene campos fuera del filtro y campos
       let queries = {};
       for (const key in query) {
         if (query.hasOwnProperty.call(query, key)) {

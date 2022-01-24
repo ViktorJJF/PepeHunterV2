@@ -21,6 +21,16 @@ let schema = new Schema(
     rankMilitary: Number,
     mainPlanet: String,
     isHunted: { type: Boolean, default: false },
+    isFriend: {
+      // se usa para cosas como autowatchdog
+      type: Boolean,
+      default: false,
+    },
+    hasWatchdog: {
+      // se usa para cosas como autowatchdog
+      type: Boolean,
+      default: false,
+    },
   },
   { versionKey: false, timestamps: true },
 );
@@ -38,6 +48,9 @@ let autoPopulateLead = function (next) {
 };
 
 schema.pre('findOne', autoPopulateLead).pre('find', autoPopulateLead);
+
+schema.set('toObject', { virtuals: true });
+schema.set('toJSON', { virtuals: true });
 
 mongoose.model('Players', schema).syncIndexes();
 

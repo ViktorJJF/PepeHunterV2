@@ -116,6 +116,7 @@ module.exports = class Bot {
         page,
         this.browser,
       );
+      await timeout(3 * 1000);
       // guardando cookies
       this.setCookies(page);
       await pageToClose.close();
@@ -148,7 +149,9 @@ module.exports = class Bot {
 
   async checkLoginStatus() {
     try {
-      if (this.isCheckingLogin) return;
+      if (this.isCheckingLogin) {
+        return this.isCheckingLoginNow();
+      }
       this.isCheckingLogin = true;
       let currentPage = null;
       // refrescando pagina
@@ -238,6 +241,12 @@ module.exports = class Bot {
     }
   }
 
+  async isCheckingLoginNow() {
+    while (this.isCheckingLogin) {
+      await timeout(5 * 1000);
+    }
+  }
+
   async refreshPage(page) {
     page = page || this.page;
     console.log('refrescando ogame');
@@ -307,7 +316,6 @@ module.exports = class Bot {
       // }
       const response = await this.getSolarSystemInformation(galaxy, system);
       if (response.status === 200 && !response.data) {
-        console.log('LOGUEATE DE NUEVO');
         throw new Error('Cookie vencida');
       } else {
         let { data } = response;

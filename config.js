@@ -3,7 +3,7 @@ module.exports = {
   LANGUAGE: 'es',
   UNIVERSE: 'Earth',
   PEPEBOTDOMAIN:
-    'https://9885-2001-1388-59a3-8e0f-1586-a346-9299-e29a.ngrok.io',
+    'https://f4cf-2001-1388-59a3-8e0f-dc3-128a-79e0-41a1.ngrok.io',
   PEPEHUNTERDOMAIN: 'https://pepehunter-v2.herokuapp.com',
   TELEGRAM_OWN_ID: '624818317',
   NUMBER_GALAXIES: 5,

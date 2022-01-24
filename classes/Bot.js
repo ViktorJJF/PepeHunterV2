@@ -25,7 +25,7 @@ module.exports = class Bot {
     this.currentPage = 0;
     this.actions = [];
     this.cookies = null;
-
+    this.isCheckingLogin = false;
     // currentPage
     // 0 -- > mainPage
     // 1 -- > Galaxy
@@ -36,7 +36,7 @@ module.exports = class Bot {
   async begin() {
     console.log('iniciando bot...');
     this.browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
@@ -76,37 +76,29 @@ module.exports = class Bot {
           delay: this.typingDelay,
         },
       );
-      if (process.env.NODE_ENV === 'development') {
-        await page.waitForSelector(
-          '#loginTab > #loginForm > p > .button-primary > span',
-        );
-        await page.evaluate(() => {
-          document.querySelector("button[type='submit']").click();
-        });
-      } else {
-        // el inicio de sesion es mediante cookie
-        await page.evaluate((token) => {
-          console.log('el token: ', token);
-          function setCookie(name, value, days) {
-            let expires = '';
-            if (days) {
-              let date = new Date();
-              date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-              expires = `; expires=${date.toUTCString()}`;
-            }
-            document.cookie = `${name}=${value || ''}${expires}; path=/`;
+
+      // el inicio de sesion es mediante cookie
+      await page.evaluate((token) => {
+        console.log('el token: ', token);
+        function setCookie(name, value, days) {
+          let expires = '';
+          if (days) {
+            let date = new Date();
+            date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+            expires = `; expires=${date.toUTCString()}`;
           }
-          setCookie('gf-token-production', token, 7);
-          console.log('COOKIE AGREGADO!');
-          return true;
-        }, config.GF_TOKEN);
-        // await page.goto(
-        //   "https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1"
-        // );
-        await page.goto(
-          `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`,
-        );
-      }
+          document.cookie = `${name}=${value || ''}${expires}; path=/`;
+        }
+        setCookie('gf-token-production', token, 7);
+        console.log('COOKIE AGREGADO!');
+        return true;
+      }, config.GF_TOKEN);
+      // await page.goto(
+      //   "https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1"
+      // );
+      await page.goto(
+        `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`,
+      );
 
       await page.waitForSelector('.column > div > #joinGame > a > .button', {
         timeout: 3000,
@@ -154,12 +146,13 @@ module.exports = class Bot {
     return page;
   }
 
-  async checkLoginStatus(page) {
+  async checkLoginStatus() {
     try {
-      page = page || this.page;
+      if (this.isCheckingLogin) return;
+      this.isCheckingLogin = true;
       let currentPage = null;
       // refrescando pagina
-      page = await this.createNewPage();
+      let page = await this.createNewPage();
       currentPage = await page.evaluate(() => {
         let selector;
         selector = document.querySelector('div#toolbarcomponent');
@@ -191,37 +184,44 @@ module.exports = class Bot {
         case 'playPage':
           try {
             console.log('nos encontramos en vista playPage');
+            // cerrando adds
+            await this.closeAds(page);
             await page.waitForSelector('#joinGame>a>button.button');
             await page.click('#joinGame>a>button.button');
             await page.waitForSelector(
               '.rt-td.action-cell>button[type="button"]',
             );
-            page = await this.clickAndWaitForTarget(
+            let previousPage = page;
+            let newPage = await this.clickAndWaitForTarget(
               '.rt-td.action-cell>button[type="button"]',
               page,
               this.browser,
             );
-            this.setCookies(page); // se reingrensan los cookies
+            this.setCookies(newPage); // se reingrensan los cookies
 
-            await page.close();
+            await previousPage.close();
+            await newPage.close();
           } catch (error) {
+            console.log(error);
             console.log('se dio un error en playpage');
-            await this.checkLoginStatus(page);
+            await this.checkLoginStatus();
           }
           break;
         case 'selectUniversePage':
           console.log('nos encontramos en vista universo');
           console.log('empezaremos el clickAndwait');
-          page = await this.clickAndWaitForTarget(
+          let previousPage = page;
+          let newPage = await this.clickAndWaitForTarget(
             '.rt-td.action-cell>button[type="button"]',
             page,
             this.browser,
           );
           console.log('se termino el click and wait');
           // main page ogame
-          this.setCookies(page); // se reingrensan los cookies
+          this.setCookies(newPage); // se reingrensan los cookies
 
-          await page.close();
+          await previousPage.close();
+          await newPage.close();
           break;
         default:
           console.log('el caso default: a logearse');
@@ -230,6 +230,7 @@ module.exports = class Bot {
           break;
       }
       console.log('se retornara la pagina cerrada');
+      this.isCheckingLogin = false;
       // await page.close();
       return 0;
     } catch (error) {
@@ -335,8 +336,7 @@ module.exports = class Bot {
     } catch (error) {
       console.log(error);
       // si algo salio mal, repetir la accion
-      let page = await this.createNewPage();
-      await this.checkLoginStatus(page);
+      await this.checkLoginStatus();
       return this.checkPlanetActivity(coords);
     }
     return activities;
@@ -439,17 +439,29 @@ module.exports = class Bot {
 
   async closeAds(page) {
     console.log('entrando a closeAds');
-    var page = page || this.page;
+    page = page || this.page;
     await timeout(2700);
     let adState = await page.evaluate(() => {
       let ad = document.querySelector('.openX_int_closeButton > a');
       return ad;
     });
-    console.log('se encontro este add: ', adState);
+    let secondAd = await page.evaluate(() => {
+      let ad = document.querySelector(
+        '.openX_interstitial .openX_int_closeButton a',
+      );
+      return ad;
+    });
+    console.log('se encontro este add: ', adState, secondAd);
     if (adState) {
       console.log('cerrando add en goToPage');
       await this.page.waitForSelector('.openX_int_closeButton > a');
       await this.page.click('.openX_int_closeButton > a');
+    }
+    if (secondAd) {
+      await this.page.waitForSelector(
+        '.openX_interstitial .openX_int_closeButton a',
+      );
+      await this.page.click('.openX_interstitial .openX_int_closeButton a');
     }
     return 0;
   }

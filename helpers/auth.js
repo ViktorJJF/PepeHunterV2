@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { buildErrObject } = require('./utils');
 
-const secret = process.env.JWT_SECRET;
+const secret = '';
 const algorithm = 'aes-192-cbc';
 // Key length is dependent on the algorithm. In this case for aes192, it is
 // 24 bytes (192 bits).

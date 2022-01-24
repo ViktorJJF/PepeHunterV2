@@ -142,6 +142,10 @@ async function getPlayersInRange(from, to, rank = 200) {
   return planets;
 }
 
+// async function watchPlayer(playerName,isWatch){
+//   let player=Players.findOne(playerName)
+// }
+
 async function scanPlayer({ nickname, playerId }) {
   let { bot } = global;
 

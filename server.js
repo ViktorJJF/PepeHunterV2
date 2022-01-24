@@ -58,6 +58,7 @@ app.listen(app.get('port'));
 // Init MongoDB
 initMongo();
 // empieza pepehunter
+console.log('🚀 Aqui *** -> process.env.NODE_ENV', process.env.NODE_ENV);
 if (process.env.NODE_ENV !== 'development') {
   require('./startPepeHunter');
 }

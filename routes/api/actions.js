@@ -88,43 +88,40 @@ router.post('/sync-military-information', async (req, res) => {
 
 async function scanGalaxy(bot, galaxy) {
   for (let solarSystem = 1; solarSystem <= 499; solarSystem++) {
-    if (galaxy === 1 && solarSystem === 31) {
-      try {
-        let solarSystemPlanets = await bot.solarSystemScraping(
-          galaxy,
-          solarSystem,
-        );
-        console.log('🚀 Aqui *** -> solarSystemPlanets', solarSystemPlanets);
-        console.log(`Escaneado: ${galaxy}:${solarSystem}`);
-        if (solarSystemPlanets.length > 0) {
-          for (const planet of solarSystemPlanets) {
-            // actualizando
-            let planetToUpdate = await Planets.findOne({
-              coords: planet.coords,
-              server: config.SERVER,
-            });
-            if (planetToUpdate) {
-              planetToUpdate.overwrite(planet);
-              planetToUpdate.save();
-            }
-            if (!playersUpdated.includes(planet.playerId)) {
-              // creando o actualizando jugador
-              // cambiando nombre
-              planet.name = planet.playerName;
-              updateCreatePlayer(planet.playerId, planet, true);
-              playersUpdated.push(planet.playerId);
-            }
+    try {
+      let solarSystemPlanets = await bot.solarSystemScraping(
+        galaxy,
+        solarSystem,
+      );
+      console.log(`Escaneado: ${galaxy}:${solarSystem}`);
+      if (solarSystemPlanets.length > 0) {
+        for (const planet of solarSystemPlanets) {
+          // actualizando
+          let planetToUpdate = await Planets.findOne({
+            coords: planet.coords,
+            server: config.SERVER,
+          });
+          if (planetToUpdate) {
+            planetToUpdate.overwrite(planet);
+            planetToUpdate.save();
           }
-          // Planets.insertMany(solarSystemPlanets);
-        } else {
-          throw new Error('Cookie vencido');
+          if (!playersUpdated.includes(planet.playerId)) {
+            // creando o actualizando jugador
+            // cambiando nombre
+            planet.name = planet.playerName;
+            updateCreatePlayer(planet.playerId, planet, true);
+            playersUpdated.push(planet.playerId);
+          }
         }
-      } catch (error) {
-        // si algo salio mal, repetir la accion
-        await bot.checkLoginStatus();
-        console.log('error escaneando universo: ', error);
-        solarSystem -= 1;
+        // Planets.insertMany(solarSystemPlanets);
+      } else {
+        throw new Error('Cookie vencido');
       }
+    } catch (error) {
+      // si algo salio mal, repetir la accion
+      await bot.checkLoginStatus();
+      console.log('error escaneando universo: ', error);
+      solarSystem -= 1;
     }
     // await timeout(5 * 1000);
   }

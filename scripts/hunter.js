@@ -61,7 +61,7 @@ async function hunterPlayer(player) {
     );
     new OverviewActivities({
       lastActivity: 'off',
-      playerId: player.playerId,
+      playerId: player._id,
     }).save();
   } else if (isPartiallyOffPrev && isPartiallyOff) {
     sendTelegramMessageBroadcast(
@@ -72,7 +72,7 @@ async function hunterPlayer(player) {
     // esta on
     new OverviewActivities({
       lastActivity: 'partiallyOff',
-      playerId: player.playerId,
+      playerId: player._id,
     }).save();
     // verificar si se trata de jugador amigo, para activar watchdog
     if (player.hasWatchdog) {
@@ -82,7 +82,7 @@ async function hunterPlayer(player) {
     // esta on
     new OverviewActivities({
       lastActivity: 'on',
-      playerId: player.playerId,
+      playerId: player._id,
     }).save();
   }
 

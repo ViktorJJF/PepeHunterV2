@@ -39,8 +39,10 @@ async function watchPlayerOff(alarm) {
   console.log('🚀 Aqui *** -> player', player);
   let isPlayerOff = false;
   // escaneando a jugador
-  let activities = await scanPlayer({ nickname: player.name });
-  let isOn = activities.some((activity) => activity.lastActivity === 'on');
+  let result = await scanPlayer({ nickname: player.name });
+  let isOn = result.activities.some(
+    (activity) => activity.lastActivity === 'on',
+  );
   if (!isOn) {
     isPlayerOff = true;
   }

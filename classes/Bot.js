@@ -55,8 +55,8 @@ module.exports = class Bot {
       console.log(`Empezando Logeo...`);
       // closing add
       await this.closeAds(page);
-      await page.waitForSelector('.cookiebanner5:nth-child(2)');
-      await page.click('.cookiebanner5:nth-child(2)');
+      await page.waitForSelector('#loginRegisterTabs > ul > li:nth-child(1)');
+      await page.click('#loginRegisterTabs > ul > li:nth-child(1)');
 
       await page.waitForSelector('#loginRegisterTabs .tabsList li');
       await page.click('#loginRegisterTabs .tabsList li');

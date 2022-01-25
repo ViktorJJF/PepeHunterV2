@@ -10,6 +10,7 @@ const {
   scanPlayer,
   getPlayersInRange,
   sendTelegramMessage,
+  watchPlayer,
 } = require('../../utils/utils');
 
 let playersUpdated = [];
@@ -184,50 +185,11 @@ router.post('/search-off-player', async (req, res) => {
 router.post('/watch-player', async (req, res) => {
   try {
     let { playerName, isWatch, telegramUsername } = req.body;
+    await watchPlayer(playerName, isWatch, telegramUsername);
     res.status(200).json({
       ok: true,
-      payload: 'Buscando jugadores off en rango',
+      payload: 'Alarma agregada',
     });
-    // obteniendo planetas en rango
-    let planets = await getPlayersInRange(from, to, rank);
-    // escaneando jugadores off
-    let checkedPlayers = [];
-    let promises = [];
-    for (const planet of planets) {
-      let result = await scanPlayer({ playerId: planet.playerId });
-      let isOn = result.activities.some(
-        (activity) => activity.lastActivity === 'on',
-      );
-      let isTotallyOff = result.activities.every(
-        (activity) => activity.lastActivity === 'off',
-      );
-      if (
-        !isOn &&
-        result.player.state !== 'vacation' &&
-        !checkedPlayers.includes(result.player.playerId)
-      ) {
-        // player off
-        promises.push(
-          sendTelegramMessage(
-            '',
-            `😴 <b>${planet.coords}</b> ${
-              result.player.allianceTag ? `[${result.player.allianceTag}] ` : ''
-            } ${planet.playerName} <code>Rank: ${planet.rank}</code>${
-              isTotallyOff ? ' Completamente 🛌' : ''
-            }`,
-            true,
-          ),
-        );
-
-        checkedPlayers.push(result.player.playerId);
-      }
-    }
-    await Promise.all(promises);
-    sendTelegramMessage(
-      '',
-      `Por ahora son todos los que están 😴 en esa zona`,
-      true,
-    );
   } catch (error) {
     console.log(error);
     res.status(400).json({ ok: false, msg: 'Algo salio mal' });

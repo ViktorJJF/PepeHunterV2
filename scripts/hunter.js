@@ -1,5 +1,6 @@
 const Players = require('../models/Players');
 const Activities = require('../models/Activities');
+const OverviewActivities = require('../models/OverviewActivities');
 const config = require('../config');
 const { timeout, sendTelegramMessageBroadcast } = require('../utils/utils');
 const autoWatchdog = require('./autoWatchdog');
@@ -58,16 +59,31 @@ async function hunterPlayer(player) {
     sendTelegramMessageBroadcast(
       `<b>${player.name}</b> está <b>completamente</b> dormido 😴💤🛌`,
     );
+    new OverviewActivities({
+      lastActivity: 'off',
+      playerId: player.playerId,
+    }).save();
   } else if (isPartiallyOffPrev && isPartiallyOff) {
     sendTelegramMessageBroadcast(
       `<b>${player.name}</b> está durmiendo 💤 desde el escaneo anterior 😴`,
     );
   } else if (isPartiallyOff) {
     sendTelegramMessageBroadcast(`<b>${player.name}</b> está durmiendo 😴💤`);
+    // esta on
+    new OverviewActivities({
+      lastActivity: 'partiallyOff',
+      playerId: player.playerId,
+    }).save();
     // verificar si se trata de jugador amigo, para activar watchdog
     if (player.hasWatchdog) {
       autoWatchdog(player.name, player.playerId);
     }
+  } else {
+    // esta on
+    new OverviewActivities({
+      lastActivity: 'on',
+      playerId: player.playerId,
+    }).save();
   }
 
   Activities.insertMany(activities);

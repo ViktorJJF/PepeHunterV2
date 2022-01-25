@@ -1,6 +1,8 @@
 const axios = require('axios');
 const Players = require('../models/Players');
 const Planets = require('../models/Planets');
+const Alarms = require('../models/Alarms');
+const db = require('../helpers/db');
 const config = require('../config');
 
 function timeout(ms) {
@@ -142,9 +144,28 @@ async function getPlayersInRange(from, to, rank = 200) {
   return planets;
 }
 
-// async function watchPlayer(playerName,isWatch){
-//   let player=Players.findOne(playerName)
-// }
+async function watchPlayer(playerName, isWatch, telegramUsername) {
+  if (isWatch) {
+    let regex = new RegExp(playerName, 'i');
+    let player = await Players.findOne({ name: { $regex: regex } });
+    console.log('🚀 Aqui *** -> player', player);
+    if (player) {
+      await db.createItem(
+        {
+          telegramUsername,
+          action: 'watchPlayerOff',
+          playerId: player._id,
+        },
+        Alarms,
+      );
+    } else {
+      sendTelegramMessage('', 'Ese jugador no existe', true);
+      throw new Error('Jugador no existe');
+    }
+  } else {
+    // cancelar vigilia
+  }
+}
 
 async function scanPlayer({ nickname, playerId }) {
   let { bot } = global;
@@ -189,4 +210,5 @@ module.exports = {
   getPlayersInRange,
   scanPlayer,
   sendTelegramMessageBroadcast,
+  watchPlayer,
 };

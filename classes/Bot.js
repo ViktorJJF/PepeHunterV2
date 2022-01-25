@@ -99,7 +99,7 @@ module.exports = class Bot {
       await page.goto(
         `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`,
       );
-
+      await this.closeAds(page);
       await page.waitForSelector('.column > div > #joinGame > a > .button', {
         timeout: 3000,
       });
@@ -449,6 +449,13 @@ module.exports = class Bot {
     console.log('entrando a closeAds');
     page = page || this.page;
     await timeout(2700);
+    let hasCookie = await page.evaluate(() =>
+      Boolean(document.querySelector('.cookiebanner5:nth-child(2)')),
+    );
+    console.log('🚀 Aqui *** -> hasCookie', hasCookie);
+    if (hasCookie) {
+      await page.click('.cookiebanner5:nth-child(2)');
+    }
     let adState = await page.evaluate(() => {
       let ad = document.querySelector('.openX_int_closeButton > a');
       return ad;

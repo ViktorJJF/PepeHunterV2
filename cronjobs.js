@@ -2,6 +2,7 @@ const schedule = require('node-schedule');
 const axios = require('axios');
 const config = require('./config');
 const startHunter = require('./scripts/hunter');
+const startWatcher = require('./scripts/watcher');
 
 console.log('EMPEZANDO CRONJOBS');
 
@@ -39,3 +40,4 @@ schedule.scheduleJob(rule, () => {
 
 // empezando hunter
 startHunter();
+startWatcher();

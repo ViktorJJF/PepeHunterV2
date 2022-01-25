@@ -8,9 +8,16 @@ async function startWatcher() {
   if (process.env.NODE_ENV === 'development') return;
   // await timeout(10 * 1000);
   console.log('EMPEZANDO WATCHER');
-  const alarms = await Alarms.find({});
-  for (const alarm of alarms) {
-    selectActions(alarm);
+
+  await timeout(10 * 1000);
+  console.log('EMPEZANDO HUNTER');
+  while (true) {
+    const alarms = await Alarms.find({});
+    for (const alarm of alarms) {
+      selectActions(alarm);
+    }
+    // esperar 3 min
+    await timeout(2 * 60 * 1000);
   }
 }
 
@@ -29,27 +36,26 @@ async function watchPlayerOff(alarm) {
   console.log('🚀 Aqui *** -> alarm', alarm);
   // buscando jugador
   let player = await Players.findOne({ _id: alarm.playerId });
-  let isPlayerOn = true;
-  while (isPlayerOn) {
-    // escaneando a jugador
-    let activities = await scanPlayer({ nickname: player.name });
-    let isOn = activities.some((activity) => activity.lastActivity === 'on');
-    if (!isOn) {
-      isPlayerOn = false;
-    }
-    // esperar 2 min para siguiente revision
-    await timeout(2 * 60 * 1000);
+  console.log('🚀 Aqui *** -> player', player);
+  let isPlayerOff = false;
+  // escaneando a jugador
+  let activities = await scanPlayer({ nickname: player.name });
+  let isOn = activities.some((activity) => activity.lastActivity === 'on');
+  if (!isOn) {
+    isPlayerOff = true;
   }
-  // el jugador se quedó off, eliminar alarma de bd
-  db.deleteItem(alarm._id, Alarms);
-  // mandar mensaje telegram
-  sendTelegramMessage(
-    '',
-    `👁️ El jugador ${player.name} se quedó off ! 💤`,
-    true,
-  );
-  // llamar con callmebot
-  callMeBot(alarm.telegramUsername);
+  if (isPlayerOff) {
+    // el jugador se quedó off, eliminar alarma de bd
+    db.deleteItem(alarm._id, Alarms);
+    // mandar mensaje telegram
+    sendTelegramMessage(
+      '',
+      `👁️ El jugador ${player.name} se quedó off ! 💤`,
+      true,
+    );
+    // llamar con callmebot
+    callMeBot(alarm.telegramUsername, 'Jugador off');
+  }
 }
 
 module.exports = startWatcher;

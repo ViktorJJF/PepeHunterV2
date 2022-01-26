@@ -4,7 +4,7 @@ module.exports = {
   UNIVERSE: 'Earth',
   PEPEBOTDOMAIN:
     process.env.PEPEBOTDOMAIN ||
-    'https://f4cf-2001-1388-59a3-8e0f-dc3-128a-79e0-41a1.ngrok.io',
+    'https://c0bf-2001-1388-59a2-207-6d2e-8b11-a6ad-c77d.ngrok.io',
   PEPEHUNTERDOMAIN: 'https://pepehunter-v2.herokuapp.com',
   TELEGRAM_OWN_ID: '624818317',
   TELEGRAM_OWN_USERNAME: '@ViktorJJF',

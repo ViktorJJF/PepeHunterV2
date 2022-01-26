@@ -350,6 +350,42 @@ module.exports = class Bot {
     return activities;
   }
 
+  async watchDebris(coords) {
+    let hasDebris = true;
+    try {
+      let [galaxy, system, position] = coords.split(':');
+      // el formato
+      // {
+      //   date: new Date(),
+      //   lastActivity: null,
+      //   type: moon | planet
+      // }
+      const response = await this.getSolarSystemInformation(galaxy, system);
+      if (response.status === 200 && !response.data) {
+        throw new Error('Cookie vencida');
+      } else {
+        let { data } = response;
+        let { galaxyContent } = data.system;
+        for (const content of galaxyContent) {
+          if (content.position === parseInt(position)) {
+            for (const planet of content.planets) {
+              let { planetType } = planet;
+              if (planetType === 2) {
+                hasDebris = false;
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      // si algo salio mal, repetir la accion
+      await this.checkLoginStatus();
+      return this.watchDebris(coords);
+    }
+    return hasDebris;
+  }
+
   async solarSystemScraping(galaxy, system) {
     let solarSystemPlanets = [];
 

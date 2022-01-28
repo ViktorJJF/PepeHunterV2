@@ -148,6 +148,8 @@ module.exports = class Bot {
   }
 
   async checkLoginStatus() {
+    let page;
+    let newPage;
     try {
       if (this.isCheckingLogin) {
         return this.isCheckingLoginNow();
@@ -155,7 +157,7 @@ module.exports = class Bot {
       this.isCheckingLogin = true;
       let currentPage = null;
       // refrescando pagina
-      let page = await this.createNewPage();
+      page = await this.createNewPage();
       currentPage = await page.evaluate(() => {
         let selector;
         selector = document.querySelector('div#toolbarcomponent');
@@ -194,15 +196,14 @@ module.exports = class Bot {
             await page.waitForSelector(
               '.rt-td.action-cell>button[type="button"]',
             );
-            let previousPage = page;
-            let newPage = await this.clickAndWaitForTarget(
+            newPage = await this.clickAndWaitForTarget(
               '.rt-td.action-cell>button[type="button"]',
               page,
               this.browser,
             );
             this.setCookies(newPage); // se reingrensan los cookies
 
-            await previousPage.close();
+            await page.close();
             await newPage.close();
           } catch (error) {
             console.log(error);
@@ -213,8 +214,7 @@ module.exports = class Bot {
         case 'selectUniversePage':
           console.log('nos encontramos en vista universo');
           console.log('empezaremos el clickAndwait');
-          let previousPage = page;
-          let newPage = await this.clickAndWaitForTarget(
+          newPage = await this.clickAndWaitForTarget(
             '.rt-td.action-cell>button[type="button"]',
             page,
             this.browser,
@@ -223,7 +223,7 @@ module.exports = class Bot {
           // main page ogame
           this.setCookies(newPage); // se reingrensan los cookies
 
-          await previousPage.close();
+          await page.close();
           await newPage.close();
           break;
         default:
@@ -237,7 +237,11 @@ module.exports = class Bot {
       // await page.close();
       return 0;
     } catch (error) {
+      // cerrando pagina
+      await page.close();
+      // ejecutando nuevamente
       console.log('aaaaaa', error);
+      this.checkLoginStatus();
     }
   }
 

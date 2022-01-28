@@ -41,9 +41,6 @@ async function hunterPlayer(player) {
   for (const response of responses) {
     for (const activity of response) {
       activity.playerId = player._id;
-      console.log(
-        `${player.name} -> [${activity.coords}]: ${activity.lastActivity}`,
-      );
     }
     activities.push(...response);
   }

@@ -6,12 +6,16 @@
 const axios = require('axios');
 const { sendTelegramMessage } = require('../utils/utils');
 const config = require('../config');
+const { makePhoneCall } = require('../services/twilioCalls');
 
 async function autoWatchdog(playerName, playerId) {
   try {
+    makePhoneCall(config.OWN_PHONE_NUMBER);
     await axios.post(`${config.PEPEBOTDOMAIN}/api/autowatchdog`, { playerId });
     await sendTelegramMessage(
+      '',
       `<b>${playerName}</b> activé tu <b>watchDog</b> 🦮 porque estuviste off en mi último escaneo`,
+      true,
     );
   } catch (error) {
     console.log(error);

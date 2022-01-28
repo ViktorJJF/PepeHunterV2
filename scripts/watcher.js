@@ -10,7 +10,6 @@ async function startWatcher() {
   console.log('EMPEZANDO WATCHER');
 
   await timeout(10 * 1000);
-  console.log('EMPEZANDO HUNTER');
   while (true) {
     const alarms = await Alarms.find({});
     for (const alarm of alarms) {
@@ -33,10 +32,8 @@ async function selectActions(alarm) {
 }
 
 async function watchPlayerOff(alarm) {
-  console.log('🚀 Aqui *** -> alarm', alarm);
   // buscando jugador
   let player = await Players.findOne({ _id: alarm.playerId });
-  console.log('🚀 Aqui *** -> player', player);
   let isPlayerOff = false;
   // escaneando a jugador
   let result = await scanPlayer({ nickname: player.name });

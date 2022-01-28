@@ -305,8 +305,8 @@ module.exports = class Bot {
    * @description Escanea planeta y luna (si lo tiene)
    */
   async checkPlanetActivity(coords) {
-    let activities = [];
     try {
+      let activities = [];
       let [galaxy, system, position] = coords.split(':');
       // el formato
       // {
@@ -341,13 +341,13 @@ module.exports = class Bot {
           }
         }
       }
+      return activities;
     } catch (error) {
       console.log(error);
       // si algo salio mal, repetir la accion
       await this.checkLoginStatus();
       return this.checkPlanetActivity(coords);
     }
-    return activities;
   }
 
   async watchDebris(coords) {

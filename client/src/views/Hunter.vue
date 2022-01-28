@@ -1,4 +1,69 @@
 <template>
+  <div class="container custom-margin" v-if="player">
+    <el-descriptions :column="3" border>
+      <el-descriptions-item
+        label="Jugador"
+        label-align="left"
+        align="center"
+        label-class-name="my-label"
+        class-name="my-content"
+        ><h3>{{ player.name }}</h3></el-descriptions-item
+      >
+      <el-descriptions-item label="Rank" label-align="left" align="left"
+        ><h3>{{ player.rank }}</h3></el-descriptions-item
+      >
+    </el-descriptions>
+    <el-descriptions :column="3" border>
+      <el-descriptions-item
+        label="Conectado"
+        label-align="left"
+        align="center"
+        label-class-name="my-label"
+        class-name="my-content"
+        ><h3>
+          <el-tag size="large" type="danger">{{
+            overviewActivities.find((el) => el._id === 'on')
+              ? (
+                  (overviewActivities.find((el) => el._id === 'on').count /
+                    totalActivities) *
+                  100
+                ).toFixed(2) + ' %'
+              : '0  %'
+          }}</el-tag>
+        </h3></el-descriptions-item
+      >
+      <el-descriptions-item
+        label="Con minuteros"
+        label-align="left"
+        align="left"
+        ><h3>
+          <el-tag size="large" type="warning">{{
+            overviewActivities.find((el) => el._id === 'partiallyOff')
+              ? (
+                  (overviewActivities.find((el) => el._id === 'partiallyOff')
+                    .count /
+                    totalActivities) *
+                  100
+                ).toFixed(2) + ' %'
+              : '0  %'
+          }}</el-tag>
+        </h3></el-descriptions-item
+      >
+      <el-descriptions-item label="Dormido" label-align="left" align="left"
+        ><h3>
+          <el-tag size="large" type="success">{{
+            overviewActivities.find((el) => el._id === 'off')
+              ? (
+                  (overviewActivities.find((el) => el._id === 'off').count /
+                    totalActivities) *
+                  100
+                ).toFixed(2) + ' %'
+              : '0  %'
+          }}</el-tag>
+        </h3></el-descriptions-item
+      >
+    </el-descriptions>
+  </div>
   <div class="custom-margin" v-if="player">
     <table class="table table-bordered border-primary">
       <thead>
@@ -52,6 +117,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 const ENTITY = 'activities';
 import activitiesApi from '@/services/api/activities';
 
@@ -79,6 +146,7 @@ export default {
       player: null,
       planets: null,
       planetsWithMoons: null,
+      overviewActivities: [],
     };
   },
   computed: {
@@ -87,6 +155,9 @@ export default {
     },
     totalPages() {
       return this.$store.state[ENTITY + 'Module'].totalPages;
+    },
+    totalActivities() {
+      return this.overviewActivities.reduce((acc, el) => acc + el.count, 0);
     },
     items() {
       return this[ENTITY];
@@ -121,8 +192,18 @@ export default {
           new Date(),
           this.$route.params.playerId,
         ),
+        axios.get(
+          '/api/overview-activities/count-by-player/' +
+            this.$route.params.playerId,
+        ),
       ]);
       this.player = responses[0][0];
+      this.overviewActivities = responses[2].data.payload;
+      console.log(
+        '🚀 Aqui *** -> this.overviewActivities',
+        this.overviewActivities,
+      );
+      console.log('🚀 Aqui *** -> this.player', this.player);
 
       this.planets = this.player.planets;
       // separando planetas de lunas
@@ -161,9 +242,11 @@ export default {
         });
     },
     filterActivitiesByCoords(activities, coords, type) {
-      return activities.filter(
-        (activity) => activity.coords === coords && activity.type === type,
-      );
+      return activities
+        ? activities.filter(
+            (activity) => activity.coords === coords && activity.type === type,
+          )
+        : [];
     },
     formatHourHeader(index) {
       let today = new Date();

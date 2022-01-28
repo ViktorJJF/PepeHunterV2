@@ -195,5 +195,17 @@ router.post('/watch-player', async (req, res) => {
     res.status(400).json({ ok: false, msg: 'Algo salio mal' });
   }
 });
+router.get('/login-status', async (req, res) => {
+  try {
+    let { bot } = global;
+    res.status(200).json({
+      ok: true,
+      isCheckingLogin: bot.isCheckingLogin,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ ok: false, msg: 'Algo salio mal' });
+  }
+});
 
 module.exports = router;

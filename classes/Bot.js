@@ -247,6 +247,7 @@ module.exports = class Bot {
 
   async isCheckingLoginNow() {
     while (this.isCheckingLogin) {
+      console.log('esperando el logeo...');
       await timeout(5 * 1000);
     }
   }

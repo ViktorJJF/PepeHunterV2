@@ -148,7 +148,6 @@ async function watchPlayer(playerName, isWatch, telegramUsername) {
   if (isWatch) {
     let regex = new RegExp(playerName, 'i');
     let player = await Players.findOne({ name: { $regex: regex } });
-    console.log('🚀 Aqui *** -> player', player);
     if (player) {
       await db.createItem(
         {

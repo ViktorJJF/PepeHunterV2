@@ -34,19 +34,24 @@ module.exports = class Bot {
   }
 
   async begin() {
-    console.log('iniciando bot...');
-    this.browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    try {
+      console.log('iniciando bot...');
+      this.browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
 
-    this.page = await this.browser.newPage();
-    this.page.setDefaultTimeout(30000);
-    this.navigationPromise = this.page.waitForNavigation();
+      this.page = await this.browser.newPage();
+      this.page.setDefaultTimeout(30000);
+      this.navigationPromise = this.page.waitForNavigation();
 
-    await this.page.goto(this.LOGIN_URL);
+      await this.page.goto(this.LOGIN_URL);
 
-    console.log('se termino el inicio');
+      console.log('se termino el inicio');
+    } catch (error) {
+      console.log('ERROR EN BEGIN: ', error);
+      await this.begin();
+    }
   }
 
   async login(ogameEmail, ogamePassword, page) {
@@ -152,7 +157,7 @@ module.exports = class Bot {
     let newPage;
     try {
       if (this.isCheckingLogin) {
-        return this.isCheckingLoginNow();
+        return await this.isCheckingLoginNow();
       }
       this.isCheckingLogin = true;
       let currentPage = null;
@@ -241,13 +246,12 @@ module.exports = class Bot {
       await page.close();
       // ejecutando nuevamente
       console.log('aaaaaa', error);
-      this.checkLoginStatus();
+      await this.checkLoginStatus();
     }
   }
 
   async isCheckingLoginNow() {
     while (this.isCheckingLogin) {
-      console.log('esperando el logeo...');
       await timeout(5 * 1000);
     }
   }

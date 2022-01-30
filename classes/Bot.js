@@ -26,6 +26,7 @@ module.exports = class Bot {
     this.actions = [];
     this.cookies = null;
     this.isCheckingLogin = false;
+    this.countAttempts = 0;
     // currentPage
     // 0 -- > mainPage
     // 1 -- > Galaxy
@@ -159,6 +160,8 @@ module.exports = class Bot {
       if (this.isCheckingLogin) {
         return await this.isCheckingLoginNow();
       }
+      // metodo que verifica si se llego al final del checkLogin
+      this.verifyLogin();
       this.isCheckingLogin = true;
       let currentPage = null;
       // refrescando pagina
@@ -252,8 +255,18 @@ module.exports = class Bot {
 
   async isCheckingLoginNow() {
     while (this.isCheckingLogin) {
+      this.countAttempts += 1;
       await timeout(5 * 1000);
     }
+  }
+
+  verifyLogin() {
+    setTimeout(() => {
+      if (this.isCheckingLogin) {
+        console.log('AUN SE ESTABA VERIFICANDO EL LOGIN...');
+        this.isCheckingLogin = false;
+      }
+    }, 20 * 1000);
   }
 
   async refreshPage(page) {
@@ -325,7 +338,7 @@ module.exports = class Bot {
       // }
       const response = await this.getSolarSystemInformation(galaxy, system);
       if (response.status === 200 && !response.data) {
-        throw new Error('Cookie vencida');
+        throw new Error('Cookie vencida en checkPlanetActivity');
       } else {
         let { data } = response;
         let { galaxyContent } = data.system;
@@ -628,7 +641,6 @@ module.exports = class Bot {
       let $ = cheerio.load(response.data);
       $('tbody tr').each((index, element) => {
         // console.log('El rank: ', $(element));
-        console.log('el element: ', $('.score', element).text().trim());
         let linkToPrincipal = $('.name>a', element)
           .attr('href')
           .trim()

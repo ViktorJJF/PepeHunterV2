@@ -43,7 +43,10 @@ schema.virtual('planets', {
 
 // auto populate
 let autoPopulateLead = function (next) {
-  this.populate('planets');
+  this.populate({
+    path: 'planets',
+    options: { sort: { galaxy: 1, systemm: 1 } },
+  });
   next();
 };
 

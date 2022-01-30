@@ -1,9 +1,12 @@
+const mongoose = require('mongoose');
 const axios = require('axios');
 const Players = require('../models/Players');
 const Planets = require('../models/Planets');
 const Alarms = require('../models/Alarms');
+const OverviewActivities = require('../models/OverviewActivities');
 const db = require('../helpers/db');
 const config = require('../config');
+const { makePhoneCall } = require('../services/twilioCalls');
 
 function timeout(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -170,12 +173,15 @@ async function watchPlayer(playerName, isWatch, telegramUsername) {
 async function scanPlayer({ nickname, playerId }) {
   let { bot } = global;
 
-  let regex = new RegExp(nickname, 'i');
+  let regex = new RegExp(`^${nickname}$`, 'i');
   let planets = [];
   if (nickname) {
-    planets = await Planets.find({ playerName: { $regex: regex } });
+    planets = await Planets.find({ playerName: { $regex: regex } }).sort({
+      galaxy: 1,
+      systemm: 1,
+    });
   } else {
-    planets = await Planets.find({ playerId });
+    planets = await Planets.find({ playerId }).sort({ galaxy: 1, systemm: 1 });
   }
   // se busca al jugador asociado
   let playerIdScanned = planets.length > 0 ? planets[0].playerId : null;
@@ -198,6 +204,38 @@ async function scanPlayer({ nickname, playerId }) {
   }
   return { activities, player, planets };
 }
+
+async function checkIfBotPlayerDisconnected(player) {
+  const aggregatorOpts = [
+    {
+      $match: {
+        playerId: mongoose.Types.ObjectId(player._id),
+      },
+    },
+    { $group: { _id: '$lastActivity', count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+  ];
+  let data = await OverviewActivities.aggregate(aggregatorOpts).exec();
+  let totalActivities = data.reduce((acc, el) => acc + el.count, 0);
+  let totalOn = data.filter((el) => el._id === 'on').length;
+  let hasDesconnected = totalOn / totalActivities === 1;
+  if (hasDesconnected) {
+    // mandamos mensaje telegram y llamada
+    sendTelegramMessageBroadcast(
+      `🔥🔥🔥 El bot del jugador ${player.name} parece haberse desconectado`,
+    );
+    // timbrar al propietario del pepehunter
+    makePhoneCall(config.OWN_PHONE_NUMBER);
+  }
+  // contabilizar
+  // esta on
+  new OverviewActivities({
+    lastActivity: 'partiallyOff',
+    playerId: player._id,
+  }).save();
+  return hasDesconnected;
+}
+
 module.exports = {
   timeout,
   msToTime,
@@ -211,4 +249,5 @@ module.exports = {
   scanPlayer,
   sendTelegramMessageBroadcast,
   watchPlayer,
+  checkIfBotPlayerDisconnected,
 };

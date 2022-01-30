@@ -6,6 +6,7 @@ const {
   timeout,
   sendTelegramMessageBroadcast,
   sendTelegramMessage,
+  checkIfBotPlayerDisconnected,
 } = require('../utils/utils');
 const autoWatchdog = require('./autoWatchdog');
 
@@ -22,7 +23,7 @@ async function startHunter() {
       await hunterPlayer(player);
     }
     // esperar 6 min
-    await timeout(6 * 60 * 1000);
+    await timeout(5 * 60 * 1000);
   }
 }
 
@@ -101,15 +102,13 @@ async function hunterPlayer(player) {
       );
     } else if (isPartiallyOff) {
       sendTelegramMessageBroadcast(`<b>${player.name}</b> está durmiendo 😴💤`);
-      // esta on
-      new OverviewActivities({
-        lastActivity: 'partiallyOff',
-        playerId: player._id,
-      }).save();
+
       // verificar si se trata de jugador amigo, para activar watchdog
       if (player.hasWatchdog) {
         autoWatchdog(player.name, player.playerId);
       }
+      // verificar si era un jugador con 100% actividad y ahora desconectó / luego contabilizar
+      checkIfBotPlayerDisconnected(player);
     } else {
       // esta on
       if (hasOnInOneMoon) {

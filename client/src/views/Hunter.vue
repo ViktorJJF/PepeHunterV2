@@ -81,9 +81,13 @@
           :key="planetIndex"
         >
           <th scope="row">
-            {{ planet.type === 'moon' ? 'Luna' : planet.name }} [{{
-              planet.coords
-            }}]
+            {{ planet.type === 'moon' ? 'Luna' : planet.name
+            }}{{
+              planet.coords === player.mainPlanet && planet.type === 'planet'
+                ? ' (principal)'
+                : ''
+            }}
+            [{{ planet.coords }}]
           </th>
           <th scope="row">
             {{ planet.type === 'moon' ? 'Luna' : 'Planeta' }}

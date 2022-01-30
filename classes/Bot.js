@@ -27,6 +27,7 @@ module.exports = class Bot {
     this.cookies = null;
     this.isCheckingLogin = false;
     this.countAttempts = 0;
+    this.openPages = [];
     // currentPage
     // 0 -- > mainPage
     // 1 -- > Galaxy
@@ -150,6 +151,7 @@ module.exports = class Bot {
       waitUntil: 'networkidle0',
       timeout: 0,
     });
+    this.openPages.push(page); // guardamos la ultima pagina
     return page;
   }
 
@@ -242,6 +244,7 @@ module.exports = class Bot {
       }
       console.log('se retornara la pagina cerrada');
       this.isCheckingLogin = false;
+      this.closeAllPages();
       // await page.close();
       return 0;
     } catch (error) {
@@ -251,6 +254,18 @@ module.exports = class Bot {
       console.log('aaaaaa', error);
       await this.checkLoginStatus();
     }
+  }
+
+  async closeAllPages() {
+    for (const page of this.openPages) {
+      try {
+        await page.close();
+      } catch (error) {
+        console.log('error cerrando pagina...');
+      }
+    }
+    // vaciar array de paginas
+    this.openPages = [];
   }
 
   async isCheckingLoginNow() {

@@ -1,3 +1,6 @@
+const callMeBot = require('./callMeBot');
+const config = require('../config');
+
 let accountSid = process.env.TWILIO_ACCOUNT_SID; // Your Account SID from www.twilio.com/console
 let authToken = process.env.TWILIO_AUTH_TOKEN; // Your Auth Token from www.twilio.com/console
 
@@ -18,6 +21,8 @@ const makePhoneCall = async (number) =>
       .catch((err) => {
         console.log(err);
         reject(err);
+        // si hubiese error, usar llamada callmeBot
+        callMeBot(config.TELEGRAM_OWN_USERNAME, 'ERROR EN TWILIO');
       });
   });
 

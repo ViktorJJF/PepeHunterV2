@@ -244,6 +244,7 @@ module.exports = class Bot {
       }
       console.log('se retornara la pagina cerrada');
       this.isCheckingLogin = false;
+      this.setCookies(page);
       this.closeAllPages();
       // await page.close();
       return 0;
@@ -579,7 +580,12 @@ module.exports = class Bot {
   }
 
   async setCookies(page) {
-    this.cookies = await page.cookies();
+    try {
+      this.cookies = await page.cookies();
+    } catch (error) {
+      console.log(error);
+      console.log('ALGO PASO INSERTANDO COOKIES A INSTANCIA');
+    }
   }
 
   async getCookies() {

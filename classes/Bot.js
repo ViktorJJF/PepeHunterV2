@@ -125,7 +125,7 @@ module.exports = class Bot {
       );
       await timeout(3 * 1000);
       // guardando cookies
-      this.setCookies(page);
+      await this.setCookies(page);
       await pageToClose.close();
       await page.close();
       // await this.closeAds();
@@ -192,7 +192,7 @@ module.exports = class Bot {
       switch (currentPage) {
         case 'mainPage':
           console.log('no paso nada.. seguimos normal');
-          this.setCookies(page); // se reingrensan los cookies
+          await this.setCookies(page); // se reingrensan los cookies
 
           await page.close();
           break;
@@ -211,7 +211,7 @@ module.exports = class Bot {
               page,
               this.browser,
             );
-            this.setCookies(newPage); // se reingrensan los cookies
+            await this.setCookies(newPage); // se reingrensan los cookies
 
             await page.close();
             await newPage.close();
@@ -231,7 +231,7 @@ module.exports = class Bot {
           );
           console.log('se termino el click and wait');
           // main page ogame
-          this.setCookies(newPage); // se reingrensan los cookies
+          await this.setCookies(newPage); // se reingrensan los cookies
 
           await page.close();
           await newPage.close();
@@ -244,7 +244,6 @@ module.exports = class Bot {
       }
       console.log('se retornara la pagina cerrada');
       this.isCheckingLogin = false;
-      this.setCookies(page);
       this.closeAllPages();
       // await page.close();
       return 0;

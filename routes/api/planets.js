@@ -20,6 +20,14 @@ router.get(
   // validate.deletes,
   controller.getAlliances,
 );
+router.get(
+  '/get-in-range',
+  // requireAuth,
+  // AuthController.roleAuthorization(['SUPERADMIN', 'ADMIN']),
+  trimRequest.all,
+  // validate.deletes,
+  controller.getInRange,
+);
 
 /*
  * Get all items route

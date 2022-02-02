@@ -32,4 +32,15 @@ let schema = new Schema(
   { versionKey: false, timestamps: true },
 );
 
+schema.virtual('player', {
+  ref: 'Players',
+  localField: 'playerId',
+  foreignField: 'playerId',
+});
+
+schema.set('toObject', { virtuals: true });
+schema.set('toJSON', { virtuals: true });
+
+mongoose.model('Planets', schema).syncIndexes();
+
 module.exports = mongoose.model('Planets', schema);

@@ -56,6 +56,24 @@ const list = async (req, res) => {
   }
 };
 
+const getInRange = async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    let [galaxy, fromSystem] = from.split(':');
+    let [, toSystem] = to.split(':');
+    let planets = await model
+      .find({
+        galaxy,
+        system: { $gte: fromSystem, $lte: toSystem },
+        playerId: { $exists: true, $ne: null },
+      })
+      .sort({ system: 1, position: 1 });
+    res.status(200).json({ ok: true, planets });
+  } catch (error) {
+    utils.handleError(res, error);
+  }
+};
+
 const listOne = async (req, res) => {
   try {
     const id = await utils.isIDGood(req.params.id);
@@ -128,4 +146,5 @@ module.exports = {
   update,
   deletes,
   getAlliances,
+  getInRange,
 };

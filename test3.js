@@ -9,11 +9,14 @@ const Planets = require('./models/Planets');
 const Players = require('./models/Players');
 
 (async () => {
-  let nickname = 'DES';
-  let regex = new RegExp(`^${nickname}$`, 'i');
-  let planets = [];
-  if (nickname) {
-    planets = await Planets.find({ playerName: { $regex: regex } });
-    console.log('🚀 Aqui *** -> planets', planets);
-  }
+  let from = '2:200';
+  let to = '2:201';
+  let [galaxy, fromSystem] = from.split(':');
+  let [, toSystem] = to.split(':');
+  let planets = await Planets.find({
+    galaxy,
+    system: { $gte: fromSystem, $lte: toSystem },
+  }).sort({ system: 1, position: 1 });
+  console.log('🚀 Aqui *** -> galaxy', planets);
+  console.log('🚀 Aqui *** -> toSystem', toSystem);
 })();

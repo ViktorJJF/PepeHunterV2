@@ -91,7 +91,7 @@ async function updateCreatePlayer(playerId, body, isFromScan) {
 
 function keepTopPlayers() {
   console.log('ELIMINANDO JUGADORES MAS ALLA DE TOP MILITAR 300');
-  Players.deleteMany({ rankMilitary: { $gte: 300 } });
+  Players.deleteMany({ rankMilitary: { $gte: 500 } });
 }
 
 async function sendTelegramMessage(senderId, message, isShared) {

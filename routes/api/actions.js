@@ -65,7 +65,7 @@ router.post('/sync-military-information', async (req, res) => {
     while (hasNext) {
       try {
         let players = await bot.getPlayersInformation(page);
-        if (players.length > 0 && page < 4) {
+        if (players.length > 0 && page <= 5) {
           players.map((player) => updateCreatePlayer(player.playerId, player));
           console.log('TERMINADA: ', page);
           page += 1;

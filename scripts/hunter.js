@@ -119,7 +119,7 @@ async function hunterPlayer(player) {
     }
 
     // verificar si se trata de jugador amigo, para activar watchdog
-    if (player.hasWatchdog) {
+    if (player.hasWatchdog && (isOff || isPartiallyOff)) {
       autoWatchdog(player.name, player.playerId);
     }
 

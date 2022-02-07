@@ -16,7 +16,7 @@ async function startWatcher() {
       selectActions(alarm);
     }
     // esperar 3 min
-    await timeout(2 * 60 * 1000);
+    await timeout(1 * 60 * 1000);
   }
 }
 

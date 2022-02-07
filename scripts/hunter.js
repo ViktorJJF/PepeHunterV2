@@ -23,7 +23,7 @@ async function startHunter() {
       await hunterPlayer(player);
     }
     // esperar 6 min
-    await timeout(5 * 60 * 1000);
+    await timeout(2 * 60 * 1000);
   }
 }
 

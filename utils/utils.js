@@ -133,7 +133,7 @@ async function sendTelegramMessageBroadcast(message) {
  * @param {*} rank
  * @returns Listado planeta de jugadores en rango que cumplen condicion
  */
-async function getPlayersInRange(from, to, rank = 200) {
+async function getPlayersInRange(from, to, rank = 385) {
   const [galaxyFrom, systemFrom, positionFrom] = from.split(':');
   const [galaxyTo, systemTo, positionTo] = to.split(':');
   let planets = await Planets.find({

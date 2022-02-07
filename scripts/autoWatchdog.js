@@ -27,4 +27,6 @@ async function autoWatchdog(playerName, playerId) {
   }
 }
 
+autoWatchdog('Latofi', 100556);
+
 module.exports = autoWatchdog;

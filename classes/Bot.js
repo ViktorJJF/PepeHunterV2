@@ -114,7 +114,7 @@ module.exports = class Bot {
 
       // await page.waitForSelector(".open > .rt-tr > .rt-td > .btn > span");
       // await page.click(".open > .rt-tr > .rt-td > .btn > span");
-
+      await this.closeAds(page);
       await page.waitForSelector('.open > .rt-tr > .rt-td > .btn > span');
       let pageToClose = page;
       // main page ogame

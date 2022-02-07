@@ -19,6 +19,7 @@ async function autoWatchdog(playerName, playerId) {
     );
   } catch (error) {
     console.log(error);
+    makePhoneCall(config.OWN_PHONE_NUMBER);
     sendTelegramMessage(
       '',
       `${playerName} intenté activar tu watchdog porque estuviste off en mi último escaneo, pero algo <b>salió mal</b>`,
@@ -26,7 +27,5 @@ async function autoWatchdog(playerName, playerId) {
     );
   }
 }
-
-autoWatchdog('Latofi', 100556);
 
 module.exports = autoWatchdog;

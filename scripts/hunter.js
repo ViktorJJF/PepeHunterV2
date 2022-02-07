@@ -103,10 +103,6 @@ async function hunterPlayer(player) {
     } else if (isPartiallyOff) {
       sendTelegramMessageBroadcast(`<b>${player.name}</b> está durmiendo 😴💤`);
 
-      // verificar si se trata de jugador amigo, para activar watchdog
-      if (player.hasWatchdog) {
-        autoWatchdog(player.name, player.playerId);
-      }
       // verificar si era un jugador con 100% actividad y ahora desconectó / luego contabilizar
       checkIfBotPlayerDisconnected(player);
     } else {
@@ -120,6 +116,11 @@ async function hunterPlayer(player) {
         lastActivity: 'on',
         playerId: player._id,
       }).save();
+    }
+
+    // verificar si se trata de jugador amigo, para activar watchdog
+    if (player.hasWatchdog) {
+      autoWatchdog(player.name, player.playerId);
     }
 
     Activities.insertMany(activities);

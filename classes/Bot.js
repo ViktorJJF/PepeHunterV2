@@ -383,6 +383,9 @@ module.exports = class Bot {
       console.log(error);
       // si algo salio mal, repetir la accion
       await this.checkLoginStatus();
+      if (this.isCheckingLogin) {
+        await this.isCheckingLoginNow();
+      }
       return this.checkPlanetActivity(coords);
     }
   }
@@ -573,8 +576,6 @@ module.exports = class Bot {
       let activity = await this.checkPlanetActivity();
       planet.activities.push(activity);
     }
-    console.log('se termino de ejecutar hunter para..', playerInfo.nickname);
-    console.log('info: ', JSON.stringify(playerInfo));
     return playerInfo;
   }
 

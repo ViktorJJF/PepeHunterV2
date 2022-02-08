@@ -249,7 +249,7 @@ module.exports = class Bot {
       return 0;
     } catch (error) {
       // cerrando pagina
-      await page.close();
+      // await page.close();
       // ejecutando nuevamente
       console.log('aaaaaa', error);
       await this.checkLoginStatus();

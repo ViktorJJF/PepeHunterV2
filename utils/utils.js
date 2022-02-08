@@ -170,9 +170,8 @@ async function watchPlayer(playerName, isWatch, telegramUsername) {
 }
 
 async function scanPlayer({ nickname, playerId }) {
+  let { bot } = global;
   try {
-    let { bot } = global;
-
     let regex = new RegExp(`^${nickname}$`, 'i');
     let planets = [];
     if (nickname) {
@@ -208,7 +207,9 @@ async function scanPlayer({ nickname, playerId }) {
     return { activities, player, planets };
   } catch (error) {
     console.log('Error en scan');
-    throw new Error(error);
+    await bot.checkLoginStatus();
+    let result = await scanPlayer({ nickname, playerId });
+    return result;
   }
 }
 

@@ -123,7 +123,7 @@ module.exports = class Bot {
         page,
         this.browser,
       );
-      await timeout(3 * 1000);
+      await timeout(2 * 1000);
       // guardando cookies
       this.setCookies(page);
       await pageToClose.close();
@@ -342,52 +342,42 @@ module.exports = class Bot {
    * @description Escanea planeta y luna (si lo tiene)
    */
   async checkPlanetActivity(coords) {
-    try {
-      let activities = [];
-      let [galaxy, system, position] = coords.split(':');
-      // el formato
-      // {
-      //   date: new Date(),
-      //   lastActivity: null,
-      //   type: moon | planet
-      // }
-      const response = await this.getSolarSystemInformation(galaxy, system);
-      if (response.status === 200 && !response.data) {
-        throw new Error('Cookie vencida en checkPlanetActivity');
-      } else {
-        let { data } = response;
-        let { galaxyContent } = data.system;
-        for (const content of galaxyContent) {
-          if (content.position === parseInt(position)) {
-            for (const planet of content.planets) {
-              let { planetType } = planet;
-              if (planetType === 1 || planetType === 3) {
-                activities.push({
-                  date: new Date(),
-                  lastActivity:
-                    planet.activity.showActivity === 15
-                      ? 'on'
-                      : planet.activity.showActivity === false
-                      ? 'off'
-                      : String(planet.activity.idleTime),
-                  type: planetType === 1 ? 'planet' : 'moon',
-                  coords,
-                });
-              }
+    let activities = [];
+    let [galaxy, system, position] = coords.split(':');
+    // el formato
+    // {
+    //   date: new Date(),
+    //   lastActivity: null,
+    //   type: moon | planet
+    // }
+    const response = await this.getSolarSystemInformation(galaxy, system);
+    if (response.status === 200 && !response.data) {
+      throw new Error('Cookie vencida en checkPlanetActivity');
+    } else {
+      let { data } = response;
+      let { galaxyContent } = data.system;
+      for (const content of galaxyContent) {
+        if (content.position === parseInt(position)) {
+          for (const planet of content.planets) {
+            let { planetType } = planet;
+            if (planetType === 1 || planetType === 3) {
+              activities.push({
+                date: new Date(),
+                lastActivity:
+                  planet.activity.showActivity === 15
+                    ? 'on'
+                    : planet.activity.showActivity === false
+                    ? 'off'
+                    : String(planet.activity.idleTime),
+                type: planetType === 1 ? 'planet' : 'moon',
+                coords,
+              });
             }
           }
         }
       }
-      return activities;
-    } catch (error) {
-      console.log(error);
-      // si algo salio mal, repetir la accion
-      await this.checkLoginStatus();
-      if (this.isCheckingLogin) {
-        await this.isCheckingLoginNow();
-      }
-      return this.checkPlanetActivity(coords);
     }
+    return activities;
   }
 
   async watchDebris(coords) {
@@ -524,7 +514,7 @@ module.exports = class Bot {
   async closeAds(page) {
     console.log('entrando a closeAds');
     page = page || this.page;
-    await timeout(2700);
+    await timeout(700);
     let hasCookie = await page.evaluate(() =>
       Boolean(document.querySelector('.cookiebanner5:nth-child(2)')),
     );
@@ -568,15 +558,6 @@ module.exports = class Bot {
     await newPage.waitForSelector('body'); // wait for page to be loaded
     // newPage.on("console", consoleObj => console.log(consoleObj.text()));
     return newPage;
-  }
-
-  async hunter(playerInfo, page) {
-    console.log('empezando hunter para...', playerInfo.nickname);
-    for (const planet of playerInfo.planets) {
-      let activity = await this.checkPlanetActivity();
-      planet.activities.push(activity);
-    }
-    return playerInfo;
   }
 
   async setCookies(page) {

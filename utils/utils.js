@@ -170,38 +170,46 @@ async function watchPlayer(playerName, isWatch, telegramUsername) {
 }
 
 async function scanPlayer({ nickname, playerId }) {
-  let { bot } = global;
+  try {
+    let { bot } = global;
 
-  let regex = new RegExp(`^${nickname}$`, 'i');
-  let planets = [];
-  if (nickname) {
-    planets = await Planets.find({ playerName: { $regex: regex } }).sort({
-      galaxy: 1,
-      systemm: 1,
-    });
-  } else {
-    planets = await Planets.find({ playerId }).sort({ galaxy: 1, systemm: 1 });
-  }
-  // se busca al jugador asociado
-  let playerIdScanned = planets.length > 0 ? planets[0].playerId : null;
-  let player;
-  if (playerIdScanned) {
-    player = await Players.findOne({ playerId: playerIdScanned });
-  }
-  let activities = [];
-  let promises = planets.map((planet) =>
-    bot.checkPlanetActivity(planet.coords),
-  );
-  let responses = await Promise.all(promises);
-  for (let i = 0; i < planets.length; i++) {
-    for (const response of responses[i]) {
-      activities.push({
-        ...response,
-        name: planets[i].name,
+    let regex = new RegExp(`^${nickname}$`, 'i');
+    let planets = [];
+    if (nickname) {
+      planets = await Planets.find({ playerName: { $regex: regex } }).sort({
+        galaxy: 1,
+        systemm: 1,
+      });
+    } else {
+      planets = await Planets.find({ playerId }).sort({
+        galaxy: 1,
+        systemm: 1,
       });
     }
+    // se busca al jugador asociado
+    let playerIdScanned = planets.length > 0 ? planets[0].playerId : null;
+    let player;
+    if (playerIdScanned) {
+      player = await Players.findOne({ playerId: playerIdScanned });
+    }
+    let activities = [];
+    let promises = planets.map((planet) =>
+      bot.checkPlanetActivity(planet.coords),
+    );
+    let responses = await Promise.all(promises);
+    for (let i = 0; i < planets.length; i++) {
+      for (const response of responses[i]) {
+        activities.push({
+          ...response,
+          name: planets[i].name,
+        });
+      }
+    }
+    return { activities, player, planets };
+  } catch (error) {
+    console.log('Error en scan');
+    throw new Error(error);
   }
-  return { activities, player, planets };
 }
 
 async function checkIfBotPlayerDisconnected(player) {

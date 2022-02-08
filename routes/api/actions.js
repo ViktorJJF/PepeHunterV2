@@ -40,9 +40,9 @@ router.post('/scan-player', async (req, res) => {
         activities,
         player: {
           mainPlanet: player ? player.mainPlanet : '',
-          rank: planets[0].rank,
-          alliance: planets[0].allianceTag,
-          playerName: planets[0].playerName,
+          rank: planets.length > 0 ? planets[0].rank : '',
+          alliance: planets.length > 0 ? planets[0].allianceTag : '',
+          playerName: planets.length > 0 ? planets[0].playerName : '',
         },
       },
     });
@@ -142,32 +142,38 @@ router.post('/search-off-player', async (req, res) => {
     let checkedPlayers = [];
     let promises = [];
     for (const planet of planets) {
-      let result = await scanPlayer({ playerId: planet.playerId });
-      let isOn = result.activities.some(
-        (activity) => activity.lastActivity === 'on',
-      );
-      let isTotallyOff = result.activities.every(
-        (activity) => activity.lastActivity === 'off',
-      );
-      if (
-        !isOn &&
-        result.player.state !== 'vacation' &&
-        !checkedPlayers.includes(result.player.playerId)
-      ) {
-        // player off
-        promises.push(
-          sendTelegramMessage(
-            '',
-            `😴 <b>${planet.coords}</b> ${
-              result.player.allianceTag ? `[${result.player.allianceTag}] ` : ''
-            } ${planet.playerName} <code>Rank: ${planet.rank}</code>${
-              isTotallyOff ? ' Completamente 🛌' : ''
-            }`,
-            true,
-          ),
+      try {
+        let result = await scanPlayer({ playerId: planet.playerId });
+        let isOn = result.activities.some(
+          (activity) => activity.lastActivity === 'on',
         );
+        let isTotallyOff = result.activities.every(
+          (activity) => activity.lastActivity === 'off',
+        );
+        if (
+          !isOn &&
+          result.player.state !== 'vacation' &&
+          !checkedPlayers.includes(result.player.playerId)
+        ) {
+          // player off
+          promises.push(
+            sendTelegramMessage(
+              '',
+              `😴 <b>${planet.coords}</b> ${
+                result.player.allianceTag
+                  ? `[${result.player.allianceTag}] `
+                  : ''
+              } ${planet.playerName} <code>Rank: ${planet.rank}</code>${
+                isTotallyOff ? ' Completamente 🛌' : ''
+              }`,
+              true,
+            ),
+          );
 
-        checkedPlayers.push(result.player.playerId);
+          checkedPlayers.push(result.player.playerId);
+        }
+      } catch (error) {
+        console.log('el error: ', error);
       }
     }
     await Promise.all(promises);

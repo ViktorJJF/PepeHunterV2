@@ -154,6 +154,7 @@ module.exports = class Bot {
       this.openPages.push(page); // guardamos la ultima pagina
       return page;
     } catch (error) {
+      console.log('🚀 Aqui *** -> error', error);
       let newPage = await this.createNewPage();
       return newPage;
     }

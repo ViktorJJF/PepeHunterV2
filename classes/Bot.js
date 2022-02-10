@@ -142,16 +142,21 @@ module.exports = class Bot {
   }
 
   async createNewPage() {
-    if (!this.browser) await this.begin();
-    let mainMenuUrl = `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`;
-    let page = await this.browser.newPage();
-    page.setDefaultTimeout(30000);
-    await page.goto(mainMenuUrl, {
-      waitUntil: 'networkidle0',
-      timeout: 0,
-    });
-    this.openPages.push(page); // guardamos la ultima pagina
-    return page;
+    try {
+      if (!this.browser) await this.begin();
+      let mainMenuUrl = `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`;
+      let page = await this.browser.newPage();
+      page.setDefaultTimeout(30000);
+      await page.goto(mainMenuUrl, {
+        waitUntil: 'networkidle0',
+        timeout: 0,
+      });
+      this.openPages.push(page); // guardamos la ultima pagina
+      return page;
+    } catch (error) {
+      let newPage = await this.createNewPage();
+      return newPage;
+    }
   }
 
   async checkLoginStatus() {

@@ -38,11 +38,11 @@ module.exports = class Bot {
   async begin() {
     try {
       console.log('iniciando bot...');
-      this.browser = await puppeteer.launch({
+      let browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
       });
-
+      this.browser = await browser.createIncognitoBrowserContext();
       this.page = await this.browser.newPage();
       this.page.setDefaultTimeout(30000);
       this.navigationPromise = this.page.waitForNavigation();
@@ -62,8 +62,6 @@ module.exports = class Bot {
       console.log(`Empezando Logeo...`);
       // closing add
       await this.closeAds(page);
-      await page.waitForSelector('#loginRegisterTabs > ul > li:nth-child(1)');
-      await page.click('#loginRegisterTabs > ul > li:nth-child(1)');
 
       await page.waitForSelector('#loginRegisterTabs .tabsList li');
       await page.click('#loginRegisterTabs .tabsList li');
@@ -144,6 +142,7 @@ module.exports = class Bot {
   }
 
   async createNewPage() {
+    if (!this.browser) await this.begin();
     let mainMenuUrl = `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`;
     let page = await this.browser.newPage();
     page.setDefaultTimeout(30000);
@@ -160,7 +159,8 @@ module.exports = class Bot {
     let newPage;
     try {
       if (this.isCheckingLogin) {
-        return await this.isCheckingLoginNow();
+        await this.isCheckingLoginNow();
+        return true;
       }
       // metodo que verifica si se llego al final del checkLogin
       this.verifyLogin();
@@ -252,7 +252,9 @@ module.exports = class Bot {
       // await page.close();
       // ejecutando nuevamente
       console.log('aaaaaa', error);
-      await this.checkLoginStatus();
+      if (!this.isCheckingLogin) {
+        await this.checkLoginStatus();
+      }
     }
   }
 

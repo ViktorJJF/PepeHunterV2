@@ -141,23 +141,19 @@ module.exports = class Bot {
     }
   }
 
-  async createNewPage() {
-    try {
-      if (!this.browser) await this.begin();
-      let mainMenuUrl = `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`;
-      let page = await this.browser.newPage();
-      page.setDefaultTimeout(30000);
-      await page.goto(mainMenuUrl, {
-        waitUntil: 'networkidle0',
-        timeout: 0,
-      });
-      this.openPages.push(page); // guardamos la ultima pagina
-      return page;
-    } catch (error) {
-      console.log('🚀 Aqui *** -> error', error);
-      let newPage = await this.createNewPage();
-      return newPage;
-    }
+  async createNewPage(url) {
+    if (!this.browser) await this.begin();
+    let mainMenuUrl =
+      url ||
+      `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`;
+    let page = await this.browser.newPage();
+    page.setDefaultTimeout(30000);
+    await page.goto(mainMenuUrl, {
+      waitUntil: 'networkidle0',
+      timeout: 0,
+    });
+    this.openPages.push(page); // guardamos la ultima pagina
+    return page;
   }
 
   async checkLoginStatus() {
@@ -173,7 +169,13 @@ module.exports = class Bot {
       this.isCheckingLogin = true;
       let currentPage = null;
       // refrescando pagina
-      page = await this.createNewPage();
+      try {
+        page = await this.createNewPage();
+      } catch (error) {
+        page = await this.createNewPage(
+          'https://lobby.ogame.gameforge.com/es_ES/hub',
+        );
+      }
       currentPage = await page.evaluate(() => {
         let selector;
         selector = document.querySelector('div#toolbarcomponent');

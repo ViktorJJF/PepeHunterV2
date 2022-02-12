@@ -57,86 +57,75 @@ module.exports = class Bot {
   }
 
   async login(ogameEmail, ogamePassword, page) {
-    try {
-      page = page || this.page;
-      console.log(`Empezando Logeo...`);
-      // closing add
-      await this.closeAds(page);
+    page = page || this.page;
+    console.log(`Empezando Logeo...`);
+    // closing add
+    await this.closeAds(page);
 
-      await page.waitForSelector('#loginRegisterTabs .tabsList li');
-      await page.click('#loginRegisterTabs .tabsList li');
+    await page.waitForSelector('#loginRegisterTabs .tabsList li');
+    await page.click('#loginRegisterTabs .tabsList li');
 
-      await page.waitForSelector('input[type="email"]');
-      await page.click('input[type="email"]');
-      await page.type('input[type="email"]', ogameEmail || this.ogameEmail, {
+    await page.waitForSelector('input[type="email"]');
+    await page.click('input[type="email"]');
+    await page.type('input[type="email"]', ogameEmail || this.ogameEmail, {
+      delay: this.typingDelay,
+    });
+
+    await page.waitForSelector('input[type="password"]');
+    await page.click('input[type="password"]');
+    await page.type(
+      'input[type="password"]',
+      ogamePassword || this.ogamePassword,
+      {
         delay: this.typingDelay,
-      });
+      },
+    );
 
-      await page.waitForSelector('input[type="password"]');
-      await page.click('input[type="password"]');
-      await page.type(
-        'input[type="password"]',
-        ogamePassword || this.ogamePassword,
-        {
-          delay: this.typingDelay,
-        },
-      );
-
-      // el inicio de sesion es mediante cookie
-      await page.evaluate((token) => {
-        console.log('el token: ', token);
-        function setCookie(name, value, days) {
-          let expires = '';
-          if (days) {
-            let date = new Date();
-            date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-            expires = `; expires=${date.toUTCString()}`;
-          }
-          document.cookie = `${name}=${value || ''}${expires}; path=/`;
+    // el inicio de sesion es mediante cookie
+    await page.evaluate((token) => {
+      console.log('el token: ', token);
+      function setCookie(name, value, days) {
+        let expires = '';
+        if (days) {
+          let date = new Date();
+          date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+          expires = `; expires=${date.toUTCString()}`;
         }
-        setCookie('gf-token-production', token, 7);
-        console.log('COOKIE AGREGADO!');
-        return true;
-      }, config.GF_TOKEN);
-      // await page.goto(
-      //   "https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1"
-      // );
-      await page.goto(
-        `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`,
-      );
-      await this.closeAds(page);
-      await page.waitForSelector('.column > div > #joinGame > a > .button', {
-        timeout: 3000,
-      });
-      await page.click('.column > div > #joinGame > a > .button');
-
-      // await page.waitForSelector(".open > .rt-tr > .rt-td > .btn > span");
-      // await page.click(".open > .rt-tr > .rt-td > .btn > span");
-      await this.closeAds(page);
-      await page.waitForSelector('.open > .rt-tr > .rt-td > .btn > span');
-      let pageToClose = page;
-      // main page ogame
-      page = await this.clickAndWaitForTarget(
-        '.open > .rt-tr > .rt-td > .btn > span',
-        page,
-        this.browser,
-      );
-      await timeout(2 * 1000);
-      // guardando cookies
-      this.setCookies(page);
-      // await this.closeAds();
-      console.log('Logeo finalizado exitosamente');
-      return true;
-    } catch (error) {
-      console.log(error);
-      // intentando nuevo logeo
-      console.log('intentando nuevamente');
-      let secondLogin = await this.login(ogameEmail, ogamePassword, page);
-      if (secondLogin) {
-        return true;
+        document.cookie = `${name}=${value || ''}${expires}; path=/`;
       }
-      return false;
-    }
+      setCookie('gf-token-production', token, 7);
+      console.log('COOKIE AGREGADO!');
+      return true;
+    }, config.GF_TOKEN);
+    // await page.goto(
+    //   "https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1"
+    // );
+    await page.goto(
+      `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`,
+    );
+    await this.closeAds(page);
+    await page.waitForSelector('.column > div > #joinGame > a > .button', {
+      timeout: 3000,
+    });
+    await page.click('.column > div > #joinGame > a > .button');
+
+    // await page.waitForSelector(".open > .rt-tr > .rt-td > .btn > span");
+    // await page.click(".open > .rt-tr > .rt-td > .btn > span");
+    await this.closeAds(page);
+    await page.waitForSelector('.open > .rt-tr > .rt-td > .btn > span');
+    let pageToClose = page;
+    // main page ogame
+    page = await this.clickAndWaitForTarget(
+      '.open > .rt-tr > .rt-td > .btn > span',
+      page,
+      this.browser,
+    );
+    await timeout(2 * 1000);
+    // guardando cookies
+    this.setCookies(page);
+    // await this.closeAds();
+    console.log('Logeo finalizado exitosamente');
+    return true;
   }
 
   async createNewPage(url) {

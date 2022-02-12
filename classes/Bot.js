@@ -124,8 +124,6 @@ module.exports = class Bot {
       await timeout(2 * 1000);
       // guardando cookies
       this.setCookies(page);
-      await pageToClose.close();
-      await page.close();
       // await this.closeAds();
       console.log('Logeo finalizado exitosamente');
       return true;
@@ -201,33 +199,22 @@ module.exports = class Bot {
         case 'mainPage':
           console.log('no paso nada.. seguimos normal');
           this.setCookies(page); // se reingrensan los cookies
-
-          await page.close();
           break;
         case 'playPage':
-          try {
-            console.log('nos encontramos en vista playPage');
-            // cerrando adds
-            await this.closeAds(page);
-            await page.waitForSelector('#joinGame>a>button.button');
-            await page.click('#joinGame>a>button.button');
-            await page.waitForSelector(
-              '.rt-td.action-cell>button[type="button"]',
-            );
-            newPage = await this.clickAndWaitForTarget(
-              '.rt-td.action-cell>button[type="button"]',
-              page,
-              this.browser,
-            );
-            this.setCookies(newPage); // se reingrensan los cookies
-
-            await page.close();
-            await newPage.close();
-          } catch (error) {
-            console.log(error);
-            console.log('se dio un error en playpage');
-            await this.checkLoginStatus();
-          }
+          console.log('nos encontramos en vista playPage');
+          // cerrando adds
+          await this.closeAds(page);
+          await page.waitForSelector('#joinGame>a>button.button');
+          await page.click('#joinGame>a>button.button');
+          await page.waitForSelector(
+            '.rt-td.action-cell>button[type="button"]',
+          );
+          newPage = await this.clickAndWaitForTarget(
+            '.rt-td.action-cell>button[type="button"]',
+            page,
+            this.browser,
+          );
+          this.setCookies(newPage); // se reingrensan los cookies
           break;
         case 'selectUniversePage':
           console.log('nos encontramos en vista universo');
@@ -240,9 +227,6 @@ module.exports = class Bot {
           console.log('se termino el click and wait');
           // main page ogame
           this.setCookies(newPage); // se reingrensan los cookies
-
-          await page.close();
-          await newPage.close();
           break;
         default:
           console.log('el caso default: a logearse');
@@ -280,7 +264,6 @@ module.exports = class Bot {
 
   async isCheckingLoginNow() {
     while (this.isCheckingLogin) {
-      this.countAttempts += 1;
       await timeout(5 * 1000);
     }
   }
@@ -567,6 +550,7 @@ module.exports = class Bot {
     // await newPage.once("load",()=>{}); //this doesn't work; wait till page is loaded
     await newPage.waitForSelector('body'); // wait for page to be loaded
     // newPage.on("console", consoleObj => console.log(consoleObj.text()));
+    this.openPages.push(newPage);
     return newPage;
   }
 

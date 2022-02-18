@@ -537,7 +537,7 @@ module.exports = class Bot {
     ); // check that you opened this page, rather than just checking the url
     const newPage = await newTarget.page(); // get the page object
     // await newPage.once("load",()=>{}); //this doesn't work; wait till page is loaded
-    await newPage.waitForSelector('body'); // wait for page to be loaded
+    // await newPage.waitForSelector('body'); // wait for page to be loaded
     // newPage.on("console", consoleObj => console.log(consoleObj.text()));
     this.openPages.push(newPage);
     return newPage;

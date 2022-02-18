@@ -134,7 +134,7 @@ module.exports = class Bot {
       url ||
       `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`;
     let page = await this.browser.newPage();
-    page.setDefaultTimeout(30000);
+    page.setDefaultTimeout(15000);
     await page.goto(mainMenuUrl, {
       waitUntil: 'networkidle0',
       timeout: 0,
@@ -147,12 +147,7 @@ module.exports = class Bot {
     let page;
     let newPage;
     try {
-      if (this.isCheckingLogin) {
-        await this.isCheckingLoginNow();
-        return true;
-      }
       // metodo que verifica si se llego al final del checkLogin
-      this.verifyLogin();
       this.isCheckingLogin = true;
       let currentPage = null;
       // refrescando pagina
@@ -203,6 +198,7 @@ module.exports = class Bot {
             page,
             this.browser,
           );
+          console.log('LLEGAMOS AL FINAL DE PLAYPAGE');
           this.setCookies(newPage); // se reingrensan los cookies
           break;
         case 'selectUniversePage':
@@ -223,23 +219,40 @@ module.exports = class Bot {
           console.log('cambiamos de pagina');
           break;
       }
-      console.log('se retornara la pagina cerrada');
+      console.log('LLEGAMOS AL FINAL DE CHECKLOGIN');
       this.isCheckingLogin = false;
-      this.closeAllPages();
       // await page.close();
-      return 0;
+      return true;
     } catch (error) {
       // cerrando pagina
       // await page.close();
       // ejecutando nuevamente
       console.log('aaaaaa', error);
-      if (!this.isCheckingLogin) {
-        await this.checkLoginStatus();
-      }
     }
   }
 
+  async checkOrWaitLogin() {
+    let hasLogged = false;
+    if (this.isCheckingLogin) {
+      // no hacer nada, solo esperar
+      await this.isCheckingLoginNow();
+    } else {
+      // login
+      while (!hasLogged) {
+        console.log('REVISANDO LOGIN NUEVAMENTE');
+        hasLogged = await this.checkLoginStatus();
+        if (hasLogged) {
+          hasLogged = true;
+          this.closeAllPages();
+        }
+      }
+    }
+    return 0;
+  }
+
   async closeAllPages() {
+    // esperando un tiempo
+    await timeout(6 * 1000);
     for (const page of this.openPages) {
       try {
         await page.close();
@@ -253,7 +266,7 @@ module.exports = class Bot {
 
   async isCheckingLoginNow() {
     while (this.isCheckingLogin) {
-      await timeout(5 * 1000);
+      await timeout(3 * 1000);
     }
   }
 
@@ -392,7 +405,7 @@ module.exports = class Bot {
     } catch (error) {
       console.log(error);
       // si algo salio mal, repetir la accion
-      await this.checkLoginStatus();
+      await this.checkOrWaitLogin();
       return this.watchDebris(coords);
     }
     return hasDebris;
@@ -537,7 +550,7 @@ module.exports = class Bot {
     ); // check that you opened this page, rather than just checking the url
     const newPage = await newTarget.page(); // get the page object
     // await newPage.once("load",()=>{}); //this doesn't work; wait till page is loaded
-    // await newPage.waitForSelector('body'); // wait for page to be loaded
+    await newPage.waitForSelector('body'); // wait for page to be loaded
     // newPage.on("console", consoleObj => console.log(consoleObj.text()));
     this.openPages.push(newPage);
     return newPage;

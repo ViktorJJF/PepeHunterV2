@@ -18,7 +18,7 @@ async function startWatcher() {
         await selectActions(alarms[i]);
       } catch (error) {
         console.log('error en alarma...');
-        await bot.checkLoginStatus();
+        await bot.checkOrWaitLogin();
         i -= 1;
       }
     }

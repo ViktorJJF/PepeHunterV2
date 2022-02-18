@@ -76,7 +76,7 @@ router.post('/sync-military-information', async (req, res) => {
         // no se suma la pagina
         console.log('Error obteniendo informacion: ', error);
         // si algo salio mal, repetir la accion
-        await bot.checkLoginStatus();
+        await bot.checkOrWaitLogin();
       }
     }
     keepTopPlayers();
@@ -120,7 +120,7 @@ async function scanGalaxy(bot, galaxy) {
       }
     } catch (error) {
       // si algo salio mal, repetir la accion
-      await bot.checkLoginStatus();
+      await bot.checkOrWaitLogin();
       console.log('error escaneando universo: ', error);
       solarSystem -= 1;
     }

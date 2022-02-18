@@ -207,7 +207,7 @@ async function scanPlayer({ nickname, playerId }) {
     return { activities, player, planets };
   } catch (error) {
     console.log('Error en scan');
-    await bot.checkLoginStatus();
+    await bot.checkOrWaitLogin();
     let result = await scanPlayer({ nickname, playerId });
     return result;
   }

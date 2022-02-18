@@ -25,7 +25,7 @@ async function startHunter() {
         await hunterPlayer(huntedPlayers[i]);
       } catch (error) {
         console.log('ERROR HUNTEANDO A:', huntedPlayers[i].name);
-        await bot.checkLoginStatus();
+        await bot.checkOrWaitLogin();
         i -= 1;
       }
     }

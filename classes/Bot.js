@@ -104,10 +104,13 @@ module.exports = class Bot {
       `https://${config.SERVER}-${config.LANGUAGE}.ogame.gameforge.com/game/index.php?page=ingame&component=overview&relogin=1`,
     );
     await this.closeAds(page);
-    await page.waitForSelector('.column > div > #joinGame > a > .button', {
-      timeout: 3000,
+    await page.waitForSelector('div > #joinGame > a > .button > span', {
+      timeout: 15000,
     });
-    await page.click('.column > div > #joinGame > a > .button');
+    await page.evaluate(() => {
+      document.querySelector('div > #joinGame > a > .button > span').click();
+    });
+    // await page.click("div > #joinGame > a > .button > span");
 
     // await page.waitForSelector(".open > .rt-tr > .rt-td > .btn > span");
     // await page.click(".open > .rt-tr > .rt-td > .btn > span");
@@ -194,10 +197,10 @@ module.exports = class Bot {
           await this.closeAds(page);
           await page.waitForSelector('#joinGame>a>button.button');
           await page.click('#joinGame>a>button.button');
-          await page.waitForSelector(".rt-td.server-name-cell", {
+          await page.waitForSelector('.rt-td.server-name-cell', {
             timeout: 15000,
           });
-          await page.click(".rt-td.server-name-cell");
+          await page.click('.rt-td.server-name-cell');
           await page.waitForSelector(
             '.rt-td.action-cell>button[type="button"]',
           );
